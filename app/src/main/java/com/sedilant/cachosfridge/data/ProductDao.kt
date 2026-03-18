@@ -23,5 +23,11 @@ interface ProductDao {
 
     @Query("SELECT COUNT(*) FROM products")
     suspend fun countProducts(): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProduct(product: ProductEntity)
+
+    @androidx.room.Delete
+    suspend fun deleteProduct(product: ProductEntity)
 }
 

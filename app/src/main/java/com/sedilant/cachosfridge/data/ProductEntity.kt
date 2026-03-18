@@ -8,6 +8,7 @@ data class ProductEntity(
     @PrimaryKey val id: String,
     val name: String,
     val priceCents: Int,
-    val stock: Int
+    val stock: Int,
+    val hasAsset: Boolean = false
 )
 

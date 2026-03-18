@@ -154,7 +154,10 @@ private fun AppNavigation() {
                 state = state,
                 onBack = { navController.popBackStack() },
                 onIncreaseStock = vm::increaseStock,
-                onDecreaseStock = vm::decreaseStock
+                onDecreaseStock = vm::decreaseStock,
+                onAddProduct = vm::addNewProduct,
+                onUpdatePrice = vm::updatePrice,
+                onDeleteProduct = vm::deleteProduct
             )
         }
 
@@ -211,4 +214,5 @@ private fun <T : ViewModel> factory(create: () -> T): ViewModelProvider.Factory 
         }
     }
 }
+
 

@@ -2,13 +2,13 @@ package com.sedilant.cachosfridge.data
 
 object SeedData {
     val products = listOf(
-        ProductEntity(id = "pepsi", name = "Pepsi", priceCents = 50, stock = 12),
-        ProductEntity(id = "kas_naranja", name = "Kas Naranja", priceCents = 50, stock = 8),
-        ProductEntity(id = "kas_limon", name = "Kas Limon", priceCents = 50, stock = 5),
-        ProductEntity(id = "cerveza", name = "Cerveza", priceCents = 50, stock = 24),
-        ProductEntity(id = "agua", name = "Agua", priceCents = 20, stock = 30),
-        ProductEntity(id = "patatas", name = "Patatas", priceCents = 50, stock = 15),
-        ProductEntity(id = "palomitas", name = "Palomitas", priceCents = 50, stock = 10)
+        ProductEntity(id = "pepsi", name = "Pepsi", priceCents = 50, stock = 12, hasAsset = true),
+        ProductEntity(id = "kas_naranja", name = "Kas Naranja", priceCents = 50, stock = 8, hasAsset = true),
+        ProductEntity(id = "kas_limon", name = "Kas Limon", priceCents = 50, stock = 5, hasAsset = true),
+        ProductEntity(id = "cerveza", name = "Cerveza", priceCents = 50, stock = 24, hasAsset = true),
+        ProductEntity(id = "agua", name = "Agua", priceCents = 20, stock = 30, hasAsset = true),
+        ProductEntity(id = "patatas", name = "Patatas", priceCents = 50, stock = 15, hasAsset = true),
+        ProductEntity(id = "palomitas", name = "Palomitas", priceCents = 50, stock = 10, hasAsset = true)
     )
 
     val people = listOf(

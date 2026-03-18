@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
@@ -26,8 +28,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.sedilant.cachosfridge.R
 import com.sedilant.cachosfridge.data.ProductEntity
 import com.sedilant.cachosfridge.ui.toEuroString
@@ -44,7 +51,10 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(id = R.string.home_title))
+                        Text(
+                            stringResource(id = R.string.home_title),
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.size(10.dp))
                         Text(
                             text = stringResource(id = R.string.home_bote_label, state.boteCents.toEuroString()),
@@ -61,54 +71,108 @@ fun HomeScreen(
             )
         }
     ) { padding ->
-        HomeProductsContent(
-            products = state.products,
-            onProductClick = onProductClick,
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
-        )
-    }
-}
+        ) {
+            Text(
+                text = stringResource(id = R.string.home_subtitle),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "Choose what you're taking from the fridge",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-@Composable
-private fun HomeProductsContent(
-    products: List<ProductEntity>,
-    onProductClick: (ProductEntity) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-        Text(text = stringResource(id = R.string.home_subtitle), style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-        items(products, key = { it.id }) { product ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onProductClick(product) },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(text = product.name, style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = product.priceCents.toEuroString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(id = R.string.inventario_stock_value, product.stock),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                items(state.products, key = { it.id }) { product ->
+                    ProductCard(product = product, onClick = { onProductClick(product) })
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ProductCard(product: ProductEntity, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+            ) {
+                ProductImage(product = product, modifier = Modifier.fillMaxSize())
+            }
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = product.priceCents.toEuroString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(id = R.string.inventario_stock_value, product.stock),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Box(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    androidx.compose.material3.Surface(modifier = modifier) {
+        content()
+    }
+}
+
+@Composable
+private fun ProductImage(product: ProductEntity, modifier: Modifier = Modifier) {
+    val drawableId = when (product.id) {
+        "pepsi" -> R.drawable.pepsi
+        "kas_naranja" -> R.drawable.orange_kas
+        "kas_limon" -> R.drawable.lemon_kas
+        "cerveza" -> R.drawable.beer
+        "agua" -> R.drawable.water
+        "patatas" -> R.drawable.chips
+        "palomitas" -> R.drawable.popcorn
+        else -> R.drawable.pepsi
+    }
+
+    AsyncImage(
+        model = drawableId,
+        contentDescription = product.name,
+        modifier = modifier,
+        contentScale = ContentScale.Crop,
+        error = painterResource(id = drawableId)
+    )
 }
 

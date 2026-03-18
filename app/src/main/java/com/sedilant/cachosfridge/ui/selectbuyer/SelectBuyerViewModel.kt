@@ -22,6 +22,7 @@ class SelectBuyerViewModel(
 ) : ViewModel() {
 
 
+
     val uiState: StateFlow<SelectBuyerUiState> = combine(
         flow { emit(repository.getProduct(productId)) },
         repository.observePeople()

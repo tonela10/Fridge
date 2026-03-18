@@ -13,6 +13,7 @@
     <string name="menu_deudas">Deudas</string>
     <string name="menu_anadir_bote">Anadir Bote</string>
     <string name="menu_anadir_fondos">Anadir Fondos</string>
+    <string name="menu_cerrar">Cerrar menu</string>
 
     <string name="select_buyer_title">Seleccionar comprador</string>
     <string name="select_buyer_subtitle">Producto: %1$s</string>
@@ -33,6 +34,13 @@
     <string name="inventario_stock_value">Stock: %1$d</string>
     <string name="inventario_mas">+1</string>
     <string name="inventario_menos">-1</string>
+    <string name="inventario_delete">Eliminar</string>
+    <string name="inventario_add_product">Añadir Nuevo Producto</string>
+    <string name="inventario_new_product">Nuevo Producto</string>
+    <string name="inventario_name">Nombre</string>
+    <string name="inventario_price_euro">Precio (EUR)</string>
+    <string name="inventario_stock_input">Stock</string>
+    <string name="confirmar">Confirmar</string>
 
     <string name="bote_title">Anadir Bote</string>
     <string name="fondos_title">Anadir Fondos</string>

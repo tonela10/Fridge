@@ -37,5 +37,32 @@ class InventoryViewModel(
             repository.updateStock(product.id, (product.stock - 1).coerceAtLeast(0))
         }
     }
+
+    fun addNewProduct(name: String, priceCents: Int, stock: Int) {
+        viewModelScope.launch {
+            val newId = "product_${System.currentTimeMillis()}"
+            val product = ProductEntity(
+                id = newId,
+                name = name,
+                priceCents = priceCents,
+                stock = stock,
+                hasAsset = false
+            )
+            repository.addProduct(product)
+        }
+    }
+
+    fun updatePrice(product: ProductEntity, newPriceCents: Int) {
+        viewModelScope.launch {
+            repository.updateProductPrice(product.id, newPriceCents)
+        }
+    }
+
+    fun deleteProduct(product: ProductEntity): Boolean {
+        viewModelScope.launch {
+            repository.deleteProduct(product.id, product.hasAsset)
+        }
+        return !product.hasAsset
+    }
 }
 
