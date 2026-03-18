@@ -20,7 +20,11 @@
 
     <string name="pago_title">Pago</string>
     <string name="pago_subtitle">Metodo de pago para %1$s</string>
+    <string name="pago_buyer">Comprador: %1$s</string>
     <string name="pago_total">Total: %1$s</string>
+    <string name="pago_total_label">Total a pagar</string>
+    <string name="pago_bote_disponible">Bote disponible</string>
+    <string name="pago_cuenta_actual">Cuenta de %1$s</string>
     <string name="pago_pagar_ya">PAGAR YA</string>
     <string name="pago_anadir_cuenta">ANADIR A LA CUENTA</string>
     <string name="pago_pagar_bote">PAGAR DE BOTE</string>

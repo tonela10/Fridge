@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 
 data class PaymentUiState(
     val productName: String = "",
+    val payerName: String = "",
+    val accountCents: Int = 0,
     val totalCents: Int = 0,
     val boteCents: Int = 0,
     val canPayWithBote: Boolean = false,
@@ -32,9 +34,12 @@ class PaymentViewModel(
         purchaseResult
     ) { boteCents, result ->
         val product = repository.getProduct(productId)
+        val person = repository.getPerson(personId)
         val total = product?.priceCents ?: 0
         PaymentUiState(
             productName = product?.name.orEmpty(),
+            payerName = person?.name.orEmpty(),
+            accountCents = person?.balanceCents ?: 0,
             totalCents = total,
             boteCents = boteCents,
             canPayWithBote = boteCents >= total,
