@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class DebtsUiState(
     val people: List<PersonEntity> = emptyList(),
@@ -15,7 +16,7 @@ data class DebtsUiState(
 )
 
 class DebtsViewModel(
-    repository: FridgeRepository
+    private val repository: FridgeRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<DebtsUiState> = repository.observePeople().map { people ->
@@ -28,5 +29,11 @@ class DebtsViewModel(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = DebtsUiState()
     )
+
+    fun liquidateDebt(personId: String) {
+        viewModelScope.launch {
+            repository.settleDebt(personId)
+        }
+    }
 }
 

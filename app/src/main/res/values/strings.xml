@@ -32,6 +32,9 @@
 
     <string name="deudas_title">DEUDAS</string>
     <string name="deudas_total_balance">Balance total: %1$s</string>
+    <string name="deudas_total_label">Total Balance</string>
+    <string name="deudas_liquidar">Liquidar</string>
+    <string name="deudas_pagado">Pagado</string>
     <string name="deudas_row">%1$s - %2$s</string>
 
     <string name="inventario_title">INVENTARIO</string>

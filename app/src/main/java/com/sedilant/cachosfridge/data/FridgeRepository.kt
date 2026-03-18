@@ -18,6 +18,7 @@ interface FridgeRepository {
     suspend fun addProduct(product: ProductEntity)
     suspend fun updateProductPrice(productId: String, newPriceCents: Int)
     suspend fun deleteProduct(productId: String, hasAsset: Boolean): Boolean
+    suspend fun settleDebt(personId: String)
 }
 
 class FridgeRepositoryImpl(
@@ -109,6 +110,13 @@ class FridgeRepositoryImpl(
         val product = productDao.getProduct(productId) ?: return false
         productDao.deleteProduct(product)
         return true
+    }
+
+    override suspend fun settleDebt(personId: String) {
+        val person = personDao.getPerson(personId) ?: return
+        if (person.balanceCents < 0) {
+            personDao.updatePerson(person.copy(balanceCents = 0))
+        }
     }
 }
 

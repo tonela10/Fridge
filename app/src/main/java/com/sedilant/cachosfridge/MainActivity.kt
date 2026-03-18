@@ -182,7 +182,11 @@ private fun AppNavigation() {
         composable(Routes.Debts) {
             val vm: DebtsViewModel = viewModel(factory = factory { DebtsViewModel(repository) })
             val state by vm.uiState.collectAsStateWithLifecycle()
-            DebtsScreen(state = state, onBack = { navController.popBackStack() })
+            DebtsScreen(
+                state = state,
+                onBack = { navController.popBackStack() },
+                onLiquidate = vm::liquidateDebt
+            )
         }
 
         composable(Routes.Inventory) {
