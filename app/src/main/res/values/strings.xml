@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Cachos Fridge</string>
+
+    <string name="accion_volver">Volver</string>
+    <string name="menu_abrir">Abrir menu</string>
+
+    <string name="home_title">NEVERA</string>
+    <string name="home_bote_label">Bote: %1$s</string>
+    <string name="home_subtitle">Selecciona productos para registrar la compra</string>
+
+    <string name="menu_titulo">Menu rail</string>
+    <string name="menu_inventario">Inventario</string>
+    <string name="menu_deudas">Deudas</string>
+    <string name="menu_anadir_bote">Anadir Bote</string>
+    <string name="menu_anadir_fondos">Anadir Fondos</string>
+
+    <string name="select_buyer_title">Seleccionar comprador</string>
+    <string name="select_buyer_subtitle">Producto: %1$s</string>
+
+    <string name="pago_title">Pago</string>
+    <string name="pago_subtitle">Metodo de pago para %1$s</string>
+    <string name="pago_total">Total: %1$s</string>
+    <string name="pago_pagar_ya">PAGAR YA</string>
+    <string name="pago_anadir_cuenta">ANADIR A LA CUENTA</string>
+    <string name="pago_pagar_bote">PAGAR DE BOTE</string>
+    <string name="pago_bote_insuficiente">Bote insuficiente para este pago</string>
+
+    <string name="deudas_title">DEUDAS</string>
+    <string name="deudas_total_balance">Balance total: %1$s</string>
+    <string name="deudas_row">%1$s - %2$s</string>
+
+    <string name="inventario_title">INVENTARIO</string>
+    <string name="inventario_stock_value">Stock: %1$d</string>
+    <string name="inventario_mas">+1</string>
+    <string name="inventario_menos">-1</string>
+
+    <string name="bote_title">Anadir Bote</string>
+    <string name="fondos_title">Anadir Fondos</string>
+    <string name="fondos_persona_label">Persona</string>
+    <string name="importe_label">Importe</string>
+    <string name="quick_1">+1 EUR</string>
+    <string name="quick_2">+2 EUR</string>
+    <string name="quick_5">+5 EUR</string>
+    <string name="confirmar_ingreso">Confirmar ingreso</string>
+    <string name="cancelar">Cancelar</string>
+
+    <string name="error_sin_stock">No hay stock disponible</string>
+</resources>

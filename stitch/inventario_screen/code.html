@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inventario - Shared Fridge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="flex items-center bg-white dark:bg-slate-900 p-4 pb-2 justify-between sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h1 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">INVENTARIO</h1>
+</header>
+<!-- Search Bar -->
+<div class="px-4 py-4 bg-white dark:bg-slate-900">
+<label class="flex flex-col min-w-40 h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
+<div class="text-slate-400 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-xl border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-slate-100 dark:bg-slate-800 h-full placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Buscar productos..." value=""/>
+</div>
+</label>
+</div>
+<!-- Inventory List -->
+<div class="flex flex-col gap-1 p-4 pb-24">
+<!-- Pepsi -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Cold can of pepsi soda drink" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAnxBxGJZi_u9dImRKQGuwvaRvDetXWprYeoppKeyTXWdw1Di5BtHctC2GxDC46U4iZtZQ4Mg5BosJSwKo7wyaKrY9tGPmaedqaYz6KErgCONfa1IYGo7a3zvq41TnK2kaX0gcF-N0gYljA1c7ipWnqXwG7fDol1GuhDgR1rijGRioQx-89ehZ2fsjFgFo7iJ_QmLJC0dsarC7t3m0sAuCcq5htsWD5d6FXjOPMdVSJYCuDxTDAtzsrw15RTshCgCtmL87dgRGCLZU");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Pepsi</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 12 · 1.50€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+<!-- Kas Naranja -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Orange soda drink in a glass bottle" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD6tlcJMzfPNXFcdyu0bTwwn2xzXfIjkfCaxnL-RFlPDVQi4hFOU-C3HC3U28oDA21HIrGq1TVIn07tGJKOBE871_AtWppxVj20UwZcSUHp7-TFLAVUwmx4BAUb8JzoR36W8mSCqBntyeNmqaLT_8JCd3935IhSz3iWbQm-kzvp6vfVMdWPvQYEUJtjknN0AzfLdPR2p_RSbWLDKiIjel0gggukafnK0jafe7dqHsLggf0YBqpi4flCcUEbehTaQ3WOSHxSBHGO8wU");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Kas Naranja</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 8 · 1.30€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+<!-- Kas Limón -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Lemonade soda drink in a glass" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBhx5N373bhr4b8ds-3okpbI0T6tiUrd7WlVEBAfOTB2LpS5xbV5Om46GTIYahgQpTcNAVm9nle0I05y3IRHGcBIruKhDVXmJ5ndMAlmC0xLKuY5qisNN9c-nmi0wdzMrMXJOu-dybQLIy0ArjKys4zq1W-kNyMj02b_VfL6ZBjdgfyRuhHw1yB7-xr8rjHzi6ob-vuEsOb6zAI8j-BVtYvU64NljEqDLvf6xbSKnDW4PKl31yKd2zbjkFYlsEp_XTYIYf1MlUB1pQ");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Kas Limón</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 5 · 1.30€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+<!-- Cerveza -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Cold craft beer bottle in fridge" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPJENvUpyq7Tn1-lSLUuZI-THj0ilzCAuemWOdsZDqlak395w6bzZJWERj1JezWmvHOEvaOu4YPRog8dkxdOu_uxQYUT4xCE3Y5ajki-e7nQYEhVD39MYqYdnbaLSoU3qVPqdzzz4GPuBHselwz4OcxJ9TjtZeuR6nbrCJMzrKEFhYtueVvLCqVTYc0ICg1NUQGR_Pn9L0USErynUl7-JhAM7R6Mo8bRWAq1fYQ1WJW3DLcONIKreSITjgn6NcI-PjugmJQ8J9rzQ");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Cerveza</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 24 · 2.00€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+<!-- Agua -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Clear mineral water bottle" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCU14e2Y5SGGHfPACP3XnVJJmstybc4UWOELDZ9gZaD3hpo1IJVnMdEtFI74layWxtObZvcLDf1cnaW_cIeRiFzLXEG3dyWdjp-JFAnuKUMCp-hRfoFWO72YIUNNB2fHAhLNRzmJkKTROQhpXgx37pilisiTNmZ_ZNGuLQzt5pVXHmPCWfNG2FopRzOQzYeX68WUmmv7YH18Sacbe8njRFx4hIJBDvVhJXwfHteBHGTXIHV1CTdku_eS_kLoc0FGrCU5gJ6QpMpld8");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Agua</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 30 · 0.80€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+<!-- Patatas -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Bag of potato chips" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDuqjt8AAbFRNvIdYkS_LifEUILfyqDsNtV67j-k7WXzcGpZuzMYvj2MZ7qrTkptYtoIA8TRARQF_h5CnqZHjuBO6c9kTOPG-IpVGgmF3t3vsKfbF0xLIusgJ1127fPRHJZe_0SUv-xNshFstLYN5LLPC-Z4SrYtb1l10wNrobB2hjd-UbTHOeWrdnCIthvYrRDio8QudQmCs0p9maXlIy1CdInT_qL43xFJ6hFXh7R1jg03uW1xLHVecfeOUVTmcDASVtLIPITaS8");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Patatas</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 15 · 1.20€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+<!-- Palomitas -->
+<div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 justify-between">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-14 border border-slate-200 dark:border-slate-700" data-alt="Bucket of movie popcorn" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC2eflr1nktnEuZlcIYVYgUCxkPqYTNIS3_L3VPy2mr_Fy1HhWgKg-pipcEfCjX2LqFcDcFgzQTSZz0CkBYEhkB8FTPd0AAKiTmHBozrfJWhv9JYo-MFvFDbjM4vGRk690l1uD6lDL1ABIz7jq3SxcNP-JrHYSFRoHEN4zTH425zB5Ub5uEEIW0jX0EP5X0h19S4U1hPNlpLV_9HECP-gGGIk7Xjdx2HT5bi9OCImBJ0tKcuRhL5_t-ysuPhQghU1RApjJ4j1Dep0Q");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-normal line-clamp-1">Palomitas</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal line-clamp-2">Stock: 10 · 2.50€</p>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary/10 text-primary text-sm font-semibold leading-normal hover:bg-primary/20 transition-colors">
+<span class="truncate">Editar</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add Button Floating -->
+<div class="fixed bottom-6 left-0 right-0 px-6 z-20">
+<button class="flex w-full items-center justify-center gap-2 rounded-xl h-14 bg-primary text-white text-base font-bold shadow-lg shadow-primary/30 active:scale-[0.98] transition-all hover:bg-primary/90">
+<span class="material-symbols-outlined">add_circle</span>
+<span>Añadir Nuevo Producto</span>
+</button>
+</div>
+</div>
+</body></html>

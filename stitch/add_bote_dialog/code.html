@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Background Screen (Dimmed) -->
+<div class="fixed inset-0 z-0 opacity-40 pointer-events-none">
+<!-- Header -->
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="flex size-12 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-12">Shared Fridge</h2>
+</div>
+<!-- Summary Cards -->
+<div class="flex flex-wrap gap-4 p-4">
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/10 dark:bg-primary/20 border border-primary/10">
+<p class="text-sm font-medium opacity-80">Fridge Items</p>
+<p class="text-2xl font-bold leading-tight">24</p>
+</div>
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/10 dark:bg-primary/20 border border-primary/10">
+<p class="text-sm font-medium opacity-80">Shared Funds</p>
+<p class="text-2xl font-bold leading-tight">€45.50</p>
+</div>
+</div>
+<!-- Activity List -->
+<h2 class="text-xl font-bold px-4 pb-3 pt-5">Recent Activity</h2>
+<div class="space-y-1">
+<div class="flex items-center gap-4 px-4 py-3 justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-800 size-12">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<div>
+<p class="font-medium">Milk purchased</p>
+<p class="text-sm opacity-60">by Maria · 2h ago</p>
+</div>
+</div>
+<p class="font-medium text-red-500">-€1.50</p>
+</div>
+<div class="flex items-center gap-4 px-4 py-3 justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-800 size-12">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<p class="font-medium">Funds added</p>
+<p class="text-sm opacity-60">by Carlos · 5h ago</p>
+</div>
+</div>
+<p class="font-medium text-green-500">+€10.00</p>
+</div>
+</div>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+<!-- Modal Content -->
+<div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+<!-- Modal Header -->
+<div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+<h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Añadir Bote</h3>
+<button class="size-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-6 space-y-6">
+<!-- Amount Input -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Cantidad a añadir</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-primary">€</span>
+<input class="w-full pl-10 pr-4 py-4 text-3xl font-bold bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-xl focus:border-primary focus:ring-0 transition-all outline-none" placeholder="0.00" step="0.01" type="number"/>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-3 gap-3">
+<button class="py-3 px-4 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary font-bold hover:bg-primary/20 transition-colors">
+                            +1€
+                        </button>
+<button class="py-3 px-4 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary font-bold hover:bg-primary/20 transition-colors">
+                            +2€
+                        </button>
+<button class="py-3 px-4 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary font-bold hover:bg-primary/20 transition-colors">
+                            +5€
+                        </button>
+</div>
+<!-- Summary Info (Optional but adds to UI feel) -->
+<div class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-sm text-blue-700 dark:text-blue-300">
+<span class="material-symbols-outlined text-blue-500">info</span>
+<p>Los fondos se añadirán al bote común disponible para todos los miembros.</p>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-6 pt-0 flex flex-col gap-3">
+<button class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-[0.98] transition-all">
+                        Confirmar ingreso
+                    </button>
+<button class="w-full py-3 text-slate-500 dark:text-slate-400 font-medium hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                        Cancelar
+                    </button>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation (Dimmed) -->
+<div class="fixed bottom-0 left-0 right-0 border-t border-slate-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 pb-6 pt-2 flex justify-between z-0 opacity-40">
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined text-primary">home</span>
+<p class="text-[10px] font-medium text-primary">Home</p>
+</div>
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined">kitchen</span>
+<p class="text-[10px] font-medium opacity-50">Fridge</p>
+</div>
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<p class="text-[10px] font-medium opacity-50">Funds</p>
+</div>
+<div class="flex flex-col items-center gap-1 flex-1">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-[10px] font-medium opacity-50">Settings</p>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Select Buyer Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-200">
+<div class="relative flex h-auto min-h-screen w-full max-w-md mx-auto flex-col bg-background-light dark:bg-background-dark overflow-x-hidden border-x border-slate-200 dark:border-slate-800">
+<header class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10 uppercase">Select Buyer Screen</h2>
+</header>
+<main class="flex-1">
+<div class="px-4 pb-2 pt-6">
+<h3 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight">Select a buyer</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Choose who is making this purchase</p>
+</div>
+<div class="grid grid-cols-2 gap-4 p-4">
+<!-- Mario -->
+<div class="group relative bg-white dark:bg-slate-900 flex flex-col gap-1 rounded-xl justify-center items-center p-6 aspect-square cursor-pointer ring-2 ring-transparent hover:ring-primary border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold">MARIO</p>
+<p class="text-red-500 font-semibold">-1.00€</p>
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white bg-primary rounded-full p-1 text-xs">check</span>
+</div>
+</div>
+<!-- Raul -->
+<div class="group relative bg-white dark:bg-slate-900 flex flex-col gap-1 rounded-xl justify-center items-center p-6 aspect-square cursor-pointer ring-2 ring-transparent hover:ring-primary border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold">RAUL</p>
+<p class="text-emerald-500 font-semibold">+2.50€</p>
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white bg-primary rounded-full p-1 text-xs">check</span>
+</div>
+</div>
+<!-- Toño -->
+<div class="group relative bg-white dark:bg-slate-900 flex flex-col gap-1 rounded-xl justify-center items-center p-6 aspect-square cursor-pointer ring-2 ring-transparent hover:ring-primary border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold">TOÑO</p>
+<p class="text-red-500 font-semibold">-0.50€</p>
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white bg-primary rounded-full p-1 text-xs">check</span>
+</div>
+</div>
+<!-- Patón -->
+<div class="group relative bg-white dark:bg-slate-900 flex flex-col gap-1 rounded-xl justify-center items-center p-6 aspect-square cursor-pointer ring-2 ring-transparent hover:ring-primary border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold">PATÓN</p>
+<p class="text-emerald-500 font-semibold">+5.00€</p>
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white bg-primary rounded-full p-1 text-xs">check</span>
+</div>
+</div>
+<!-- Canut -->
+<div class="group relative bg-white dark:bg-slate-900 flex flex-col gap-1 rounded-xl justify-center items-center p-6 aspect-square cursor-pointer ring-2 ring-transparent hover:ring-primary border border-slate-200 dark:border-slate-800 transition-all shadow-sm">
+<p class="text-slate-900 dark:text-slate-100 text-lg font-bold">CANUT</p>
+<p class="text-slate-500 dark:text-slate-400 font-semibold">0.00€</p>
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white bg-primary rounded-full p-1 text-xs">check</span>
+</div>
+</div>
+</div>
+</main>
+<footer class="p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 sticky bottom-0">
+<button class="w-full flex cursor-pointer items-center justify-center rounded-xl h-14 px-5 bg-primary text-white text-lg font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 active:scale-95 transition-transform">
+<span>Confirm Selection</span>
+</button>
+<div class="h-4"></div>
+</footer>
+</div>
+</body></html>

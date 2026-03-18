@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-slate-200 dark:bg-slate-950 font-display flex items-center justify-center min-h-screen p-4">
+<!-- Mobile Dialog Container -->
+<div class="relative flex h-full max-h-[795px] w-full max-w-[480px] flex-col bg-background-light dark:bg-background-dark overflow-hidden rounded-xl shadow-2xl">
+<!-- TopAppBar Header -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 border-b border-slate-200 dark:border-slate-800 justify-between sticky top-0 z-10">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">close</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">Añadir Fondos</h2>
+</div>
+<div class="flex-1 overflow-y-auto">
+<!-- User Selection Dropdown -->
+<div class="flex flex-col gap-2 px-4 py-4">
+<label class="flex flex-col w-full">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-normal pb-2">Seleccionar persona</p>
+<select class="form-select flex w-full rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-14 px-4 text-base font-normal">
+<option value="mario">Mario</option>
+<option value="paton">Patón</option>
+<option value="tono">Toño</option>
+<option value="raul">Raúl</option>
+</select>
+</label>
+</div>
+<!-- Amount Input Section -->
+<div class="flex flex-col gap-2 px-4 py-3">
+<label class="flex flex-col w-full">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-normal pb-2">Importe</p>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 text-lg">€</span>
+<input class="form-input flex w-full rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-16 pl-10 pr-4 text-2xl font-bold placeholder:text-slate-300 dark:placeholder:text-slate-700" placeholder="0.00" step="0.01" type="number" value="0.00"/>
+</div>
+</label>
+</div>
+<!-- Quick Select Buttons -->
+<div class="flex gap-3 px-4 py-3 flex-wrap">
+<button class="flex h-10 flex-1 items-center justify-center gap-x-2 rounded-lg bg-primary/10 dark:bg-primary/20 border border-primary/20 hover:bg-primary/20 transition-colors">
+<p class="text-primary text-sm font-bold">+1€</p>
+</button>
+<button class="flex h-10 flex-1 items-center justify-center gap-x-2 rounded-lg bg-primary/10 dark:bg-primary/20 border border-primary/20 hover:bg-primary/20 transition-colors">
+<p class="text-primary text-sm font-bold">+2€</p>
+</button>
+<button class="flex h-10 flex-1 items-center justify-center gap-x-2 rounded-lg bg-primary/10 dark:bg-primary/20 border border-primary/20 hover:bg-primary/20 transition-colors">
+<p class="text-primary text-sm font-bold">+5€</p>
+</button>
+</div>
+<!-- Information Note Box -->
+<div class="p-4">
+<div class="flex flex-col items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 dark:bg-primary/10 p-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">info</span>
+<p class="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight">Nota informativa</p>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-relaxed">
+                        Estos fondos se añadirán directamente al balance personal del usuario seleccionado para futuros gastos comunes.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Action Buttons Footer -->
+<div class="flex flex-col gap-3 p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 sticky bottom-0">
+<button class="flex w-full items-center justify-center rounded-xl bg-primary h-14 text-white font-bold text-base shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform">
+                Confirmar ingreso
+            </button>
+<button class="flex w-full items-center justify-center rounded-xl bg-transparent h-12 text-slate-500 dark:text-slate-400 font-semibold text-base hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                Cancelar
+            </button>
+</div>
+</div>
+</body></html>

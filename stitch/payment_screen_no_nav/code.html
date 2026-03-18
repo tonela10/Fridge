@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-xl overflow-x-hidden">
+<!-- Header -->
+<header class="flex items-center bg-background-light dark:bg-background-dark p-4 border-b border-slate-200 dark:border-slate-800">
+<button class="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100 text-2xl">arrow_back</span>
+</button>
+<h2 class="text-lg font-extrabold leading-tight tracking-[-0.015em] flex-1 text-center mr-12 uppercase">Pago</h2>
+</header>
+<!-- Content Area -->
+<main class="flex-1 flex flex-col px-6 py-8">
+<div class="mb-10 text-center">
+<div class="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-4xl">payments</span>
+</div>
+<h3 class="text-2xl font-extrabold tracking-tight mb-2">Selecciona el método de pago</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Elige cómo deseas procesar esta transacción ahora.</p>
+</div>
+<!-- Payment Buttons Stack -->
+<div class="flex flex-col gap-4 w-full">
+<!-- Pagar Ya: High Emphasis -->
+<button class="group flex flex-col items-center justify-center gap-2 w-full py-8 px-6 bg-primary text-white rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-3xl">bolt</span>
+<span class="text-xl font-bold tracking-wider uppercase">PAGAR YA</span>
+</button>
+<!-- Añadir a la cuenta: Medium Emphasis -->
+<button class="group flex flex-col items-center justify-center gap-2 w-full py-6 px-6 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl border-2 border-transparent hover:border-primary/50 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">person_add</span>
+<span class="text-lg font-bold tracking-wide uppercase">AÑADIR A LA CUENTA</span>
+</button>
+<!-- Pagar de bote: Alternative Emphasis -->
+<button class="group flex flex-col items-center justify-center gap-2 w-full py-6 px-6 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-xl border-2 border-transparent hover:border-primary/50 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-3xl text-primary">group</span>
+<span class="text-lg font-bold tracking-wide uppercase">PAGAR DE BOTE</span>
+</button>
+</div>
+<!-- Summary Card -->
+<div class="mt-auto pt-8">
+<div class="bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-center">
+<span class="text-slate-500 dark:text-slate-400 font-medium">Total a pagar</span>
+<span class="text-2xl font-black text-primary">€42.50</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+</div>
+</body></html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEVERA - Select Items</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header Section -->
+<header class="sticky top-0 z-10 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-3 justify-between border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-4">
+<button class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-slate-300">menu</span>
+</button>
+<h2 class="text-xl font-bold leading-tight tracking-tight uppercase">NEVERA</h2><div class="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-3"></div><span class="text-lg font-medium text-slate-600 dark:text-slate-400">Bote: 0.00€</span>
+</div>
+</header>
+<!-- Product Grid -->
+<main class="flex-1 overflow-y-auto">
+<div class="px-4 pt-6 pb-2">
+<h3 class="text-lg font-bold">Select items</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Choose what you're taking from the fridge</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+<!-- Product 1 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cold can of Pepsi cola drink" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBCfEjNnRCCBPWp1cVXEfsXIT1GI7BhRZjMB6KRjmOHXHftygsJfedse9KSFtsRDjnA5r8HJeqFqJTC2TiK4yV0XvMXQkzCkAf6OUyq9qE-BoYltljNbRf4SHrMBuqzaMzlefEiFD2-Tla6Hjo9tjBWCwNGnOBr4ZE-29nfDyF3syOnVnFZD0ud0MRJgcjkfrAQg8cRmQAaDKPIyUW-BR49X464IQM8KB46Mr0cF0ZvbpSwO-wyPcaDwc6AqPt45CuR4Oc_40XKfRk');"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 p-1.5 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+</div>
+</div>
+<div class="px-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-tight">Pepsi</p>
+<p class="text-primary text-sm font-medium mt-0.5">0.50€</p>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Orange flavored soda can beverage" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBNnuQvUOpMn55Edzk7pAmgMKyHlphlMG8et4437PQtfXYkKnz3IilMxGPaj-9nM62bgX3v83huuq253hrWiIuKlTEctWwgCEE2324MkBXs_ot5aeCs7ZPq8Ub1AbTnUD26AegUxif4ax3PV7Ue1-pMMONAnyTLKXJDwDQJMVxxwbtCix1OS-IbFbZCIStlYPFQgxW1ZRBahJFOLQ5Ot7NFiK3z5m9om0pOvhtzCRAMznLWkn7-11TdpW3FojCgJHhd8hsW3GOnPCY');"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 p-1.5 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+</div>
+</div>
+<div class="px-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-tight">Kas Naranja</p>
+<p class="text-primary text-sm font-medium mt-0.5">0.50€</p>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Lemon flavored fizzy soda drink" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBzUhI1Env8Zn03fMfuFKkc6nrxaRR0lZ5DDuj1n8ffQKntvohLacjds5gApFlU1HuqtPsLIhhEs9qz0Hwmj36ZLDTl_kP-_ymjsylIIOTdah0ck3H1Xk1sXZMYxXZE184wZMdD7lwKd25PKoI0S7_u0_9EUXX6zMSbLiqiBQyOGc4CoRQH8_ysciCDgg0zqrDQMf7YMK44mPp5DedC4BPL_VMeiTaAPwOtQ80bNyunRjmyBopWrLNXw4_8wPyWuKPtdXDR_QOpnDI');"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 p-1.5 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+</div>
+</div>
+<div class="px-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-tight">Kas Limon</p>
+<p class="text-primary text-sm font-medium mt-0.5">0.50€</p>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Clear bottled mineral drinking water" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAygnW9mVfcxP7WiW-_fEwG-YuIyvWybErBoK03iT9mhvYeRSk40-vYP3fw5WvimIp4QKnbundv1-P8_UZxGqZYFVq-kk4w8JmdkAIp_Ux2_B3t_lunv-4jCjRvdlg_oiLD-HXpETSwJFBrkvb-DHMuZGkiUAoe1LfMxSKtuNQIuvABl_LbmcOpmU6lQDudAMy34fxHM-K9OkOejW6prAfz4ADZ5dXz6tEewuG-GFyqenBdFXe6A1vuKOVZgwbbnNCrwL-yoMsd2q0');"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 p-1.5 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+</div>
+</div>
+<div class="px-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-tight">Agua</p>
+<p class="text-primary text-sm font-medium mt-0.5">0.20€</p>
+</div>
+</div>
+<!-- Product 5 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Bag of crispy potato chips" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDhNLDgTWZvb3LTA86EcSmqx-SSo3Eolx_y_DSnlxBLbIAjmgcSw41Owt9r-3QPjFcKV_Z6kJ2Ckt6sTco8375WOf_bShB1lIPdfDZNoZVQ3cG4ZFsL-9XY-ahDhzv-6_zWyKuJiHqPs4LlVjIV5XnxitHOpHykA0j5XgS5qCQCKdZcD584usbHwEpVh5uiQ9oHNg1D73zQMWmrmGmcqE4afkpygeUWGLdnFf_D-HHdN55vm--xR3diLCYj4-j3b56nBPaGObOV418');"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 p-1.5 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+</div>
+</div>
+<div class="px-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-tight">Patatas</p>
+<p class="text-primary text-sm font-medium mt-0.5">0.50€</p>
+</div>
+</div>
+<!-- Product 6 -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-square bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm transition-transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Bucket of movie theater popcorn" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCX21z5iN5QwKHAM7Vl7hyMvhpPBlOaHyp7klP1PX96jgy2xfjH6gnaZgGmpEz7Qet8Arp8IfG-YugMoGdNta48UbnldF7HD4ACy8hSCgLPUmuDp8SOwfLQoz65aVhrxFNoQOo9MzMqLJGoH6ONGJAFtDTSfheVNp0IVTsRTWOwLxMb3HhOgaJ741ajySCUdmRIwVXwHy5gr8QIOHlV78DlF7pTf5J3UQxKVHq30tE1XmvJT4cr15ytDIeDYxSWeMhhIR7mRjzOUgg');"></div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 p-1.5 rounded-full shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">add_circle</span>
+</div>
+</div>
+<div class="px-1">
+<p class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-tight">Palomitas</p>
+<p class="text-primary text-sm font-medium mt-0.5">0.50€</p>
+</div>
+</div>
+</div>
+<div class="h-32"></div> <!-- Spacer for fixed button -->
+</main>
+<!-- Continue Button -->
+<div class="fixed bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light/95 dark:via-background-dark/95 to-transparent px-4 pb-8 pt-4">
+<button class="w-full h-14 bg-primary text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                Continue
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>
