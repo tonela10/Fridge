@@ -1,5 +1,6 @@
 package com.sedilant.cachosfridge.ui.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,13 +17,14 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -34,7 +36,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import com.sedilant.cachosfridge.R
 import com.sedilant.cachosfridge.data.ProductEntity
 import com.sedilant.cachosfridge.ui.toEuroString
@@ -50,14 +51,24 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(8.dp)
+                    ) {
                         Text(
                             stringResource(id = R.string.home_title),
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.size(10.dp))
+                        Spacer(
+                            modifier = Modifier
+                                .size(1.dp)
+                                .weight(1f)
+                        )
                         Text(
-                            text = stringResource(id = R.string.home_bote_label, state.boteCents.toEuroString()),
+                            text = stringResource(
+                                id = R.string.home_bote_label,
+                                state.boteCents.toEuroString()
+                            ),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -65,7 +76,13 @@ fun HomeScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onOpenMenu) {
-                        Icon(Icons.Default.Menu, contentDescription = stringResource(id = R.string.menu_abrir))
+                        Icon(
+                            // TODO Centering the icon vertically with the title text
+                            modifier = Modifier,
+                            imageVector =
+                                Icons.Default.Menu,
+                            contentDescription = stringResource(id = R.string.menu_abrir)
+                        )
                     }
                 }
             )
@@ -77,18 +94,7 @@ fun HomeScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            Text(
-                text = stringResource(id = R.string.home_subtitle),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            Text(
-                text = "Choose what you're taking from the fridge",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
+            Surface() { }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -105,7 +111,7 @@ fun HomeScreen(
 
 @Composable
 private fun ProductCard(product: ProductEntity, onClick: () -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick),
@@ -120,7 +126,13 @@ private fun ProductCard(product: ProductEntity, onClick: () -> Unit) {
             ) {
                 ProductImage(product = product, modifier = Modifier.fillMaxSize())
             }
-            Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -132,12 +144,6 @@ private fun ProductCard(product: ProductEntity, onClick: () -> Unit) {
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = stringResource(id = R.string.inventario_stock_value, product.stock),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
                 )
             }
         }
@@ -166,13 +172,11 @@ private fun ProductImage(product: ProductEntity, modifier: Modifier = Modifier) 
         "palomitas" -> R.drawable.popcorn
         else -> R.drawable.pepsi
     }
-
-    AsyncImage(
-        model = drawableId,
+    Image(
+        painter = painterResource(id = drawableId),
         contentDescription = product.name,
         modifier = modifier,
-        contentScale = ContentScale.Crop,
-        error = painterResource(id = drawableId)
+        contentScale = ContentScale.Inside
     )
 }
 

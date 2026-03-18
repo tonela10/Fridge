@@ -8,7 +8,7 @@
     <string name="home_bote_label">Bote: %1$s</string>
     <string name="home_subtitle">Selecciona productos para registrar la compra</string>
 
-    <string name="menu_titulo">Menu rail</string>
+    <string name="menu_titulo">MENU</string>
     <string name="menu_inventario">Inventario</string>
     <string name="menu_deudas">Deudas</string>
     <string name="menu_anadir_bote">Anadir Bote</string>
