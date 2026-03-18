@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,12 +64,18 @@ fun InventoryScreen(
     onDeleteProduct: (ProductEntity) -> Unit = {}
 ) {
     var showAddSheet by remember { mutableStateOf(false) }
-    var editingProduct by remember { mutableStateOf<ProductEntity?>(null) }
+    // Store only the ID – derive the live entity from state so the sheet
+    // always shows the most recent Room-emitted values (real-time updates).
+    var editingProductId by remember { mutableStateOf<String?>(null) }
+    val editingProduct by remember(state.products) {
+        derivedStateOf { state.products.firstOrNull { it.id == editingProductId } }
+    }
 
     var addName by remember { mutableStateOf("") }
     var addPrice by remember { mutableStateOf("") }
     var addStock by remember { mutableStateOf("") }
 
+    // Edit fields: re-initialised whenever the live product changes while the sheet is open.
     var editPrice by remember { mutableStateOf("") }
     var editStock by remember { mutableStateOf("") }
 
@@ -128,7 +135,7 @@ fun InventoryScreen(
                             }
 
                             OutlinedButton(onClick = {
-                                editingProduct = product
+                                editingProductId = product.id
                                 editStock = product.stock.toString()
                                 editPrice = "%.2f".format(product.priceCents / 100.0).replace('.', ',')
                             }) {
@@ -154,7 +161,7 @@ fun InventoryScreen(
         }
 
         if (editingProduct != null) {
-            ModalBottomSheet(onDismissRequest = { editingProduct = null }) {
+            ModalBottomSheet(onDismissRequest = { editingProductId = null }) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -185,14 +192,14 @@ fun InventoryScreen(
                                 val current = editingProduct ?: return@Button
                                 if (stockValue != null) onSetStock(current, stockValue)
                                 onUpdatePrice(current, priceValue.toInt())
-                                editingProduct = null
+                                editingProductId = null
                             },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(stringResource(id = R.string.inventario_guardar_cambios))
                         }
                         OutlinedButton(
-                            onClick = { editingProduct = null },
+                            onClick = { editingProductId = null },
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(stringResource(id = R.string.cancelar))

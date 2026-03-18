@@ -8,7 +8,10 @@ class AppContainer(context: Context) {
         context,
         FridgeDatabase::class.java,
         "cachos_fridge.db"
-    ).build()
+    )
+        .addMigrations(FridgeDatabase.MIGRATION_1_2)
+        .fallbackToDestructiveMigration()
+        .build()
 
     val repository: FridgeRepository = FridgeRepositoryImpl(
         db = db,

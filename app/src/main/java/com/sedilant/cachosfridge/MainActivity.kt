@@ -4,6 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
@@ -62,7 +67,36 @@ private fun AppNavigation() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    NavHost(navController = navController, startDestination = Routes.Home) {
+    val tweenDuration = 350
+
+    NavHost(
+        navController = navController,
+        startDestination = Routes.Home,
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(tweenDuration)
+            ) + fadeIn(animationSpec = tween(tweenDuration))
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { fullWidth -> -fullWidth / 3 },
+                animationSpec = tween(tweenDuration)
+            ) + fadeOut(animationSpec = tween(tweenDuration))
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { fullWidth -> -fullWidth / 3 },
+                animationSpec = tween(tweenDuration)
+            ) + fadeIn(animationSpec = tween(tweenDuration))
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(tweenDuration)
+            ) + fadeOut(animationSpec = tween(tweenDuration))
+        }
+    ) {
         composable(Routes.Home) {
             val vm: HomeViewModel = viewModel(factory = factory { HomeViewModel(repository) })
             val state by vm.uiState.collectAsStateWithLifecycle()
