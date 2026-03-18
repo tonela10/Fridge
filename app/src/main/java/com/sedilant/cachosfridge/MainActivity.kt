@@ -9,7 +9,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -63,6 +66,12 @@ private fun AppNavigation() {
         composable(Routes.Home) {
             val vm: HomeViewModel = viewModel(factory = factory { HomeViewModel(repository) })
             val state by vm.uiState.collectAsStateWithLifecycle()
+            val addBoteVm: AddBoteViewModel = viewModel(factory = factory { AddBoteViewModel(repository) })
+            val addBoteState by addBoteVm.uiState.collectAsStateWithLifecycle()
+            val addFundsVm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository) })
+            val addFundsState by addFundsVm.uiState.collectAsStateWithLifecycle()
+            var showAddBoteSheet by remember { mutableStateOf(false) }
+            var showAddFundsSheet by remember { mutableStateOf(false) }
 
             MenuRailScreen(
                 drawerState = drawerState,
@@ -76,11 +85,11 @@ private fun AppNavigation() {
                 },
                 onAddBoteClick = {
                     scope.launch { drawerState.close() }
-                    navController.navigate(Routes.AddBote)
+                    showAddBoteSheet = true
                 },
                 onAddFundsClick = {
                     scope.launch { drawerState.close() }
-                    navController.navigate(Routes.AddFunds)
+                    showAddFundsSheet = true
                 },
                 content = {
                     HomeScreen(
@@ -90,6 +99,35 @@ private fun AppNavigation() {
                             navController.navigate("${Routes.SelectBuyer}/${product.id}")
                         }
                     )
+
+                    if (showAddBoteSheet) {
+                        AddBoteDialogScreen(
+                            state = addBoteState,
+                            onDismiss = { showAddBoteSheet = false },
+                            onAmountChange = addBoteVm::onAmountChange,
+                            onQuickAdd = addBoteVm::addQuickAmount,
+                            onConfirm = {
+                                addBoteVm.confirm {
+                                    showAddBoteSheet = false
+                                }
+                            }
+                        )
+                    }
+
+                    if (showAddFundsSheet) {
+                        AddFundsDialogScreen(
+                            state = addFundsState,
+                            onDismiss = { showAddFundsSheet = false },
+                            onPersonSelected = addFundsVm::onPersonSelected,
+                            onAmountChange = addFundsVm::onAmountChange,
+                            onQuickAdd = addFundsVm::addQuickAmount,
+                            onConfirm = {
+                                addFundsVm.confirm {
+                                    showAddFundsSheet = false
+                                }
+                            }
+                        )
+                    }
                 }
             )
         }

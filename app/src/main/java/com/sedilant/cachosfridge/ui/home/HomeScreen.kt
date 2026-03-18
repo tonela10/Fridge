@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,43 +50,44 @@ fun HomeScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(
-                            stringResource(id = R.string.home_title),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .size(1.dp)
-                                .weight(1f)
-                        )
-                        Text(
-                            text = stringResource(
-                                id = R.string.home_bote_label,
-                                state.boteCents.toEuroString()
-                            ),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+            Column {
+                TopAppBar(
+                    title = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text(
+                                stringResource(id = R.string.home_title),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .size(1.dp)
+                                    .weight(1f)
+                            )
+                            Text(
+                                text = stringResource(
+                                    id = R.string.home_bote_label,
+                                    state.boteCents.toEuroString()
+                                ),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onOpenMenu) {
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(id = R.string.menu_abrir)
+                            )
+                        }
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onOpenMenu) {
-                        Icon(
-                            // TODO Centering the icon vertically with the title text
-                            modifier = Modifier,
-                            imageVector =
-                                Icons.Default.Menu,
-                            contentDescription = stringResource(id = R.string.menu_abrir)
-                        )
-                    }
-                }
-            )
+                )
+                HorizontalDivider()
+            }
         }
     ) { padding ->
         Column(
