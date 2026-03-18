@@ -43,6 +43,10 @@
     <string name="inventario_menos">-1</string>
     <string name="inventario_delete">Eliminar</string>
     <string name="inventario_add_product">Añadir Nuevo Producto</string>
+    <string name="inventario_editar">Editar</string>
+    <string name="inventario_editar_producto">Editar producto</string>
+    <string name="inventario_guardar_cambios">Guardar cambios</string>
+    <string name="inventario_row_stock_price">Stock: %1$d · %2$s</string>
     <string name="inventario_new_product">Nuevo Producto</string>
     <string name="inventario_name">Nombre</string>
     <string name="inventario_price_euro">Precio (EUR)</string>

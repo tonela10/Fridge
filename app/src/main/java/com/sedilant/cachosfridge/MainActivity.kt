@@ -197,6 +197,7 @@ private fun AppNavigation() {
                 onBack = { navController.popBackStack() },
                 onIncreaseStock = vm::increaseStock,
                 onDecreaseStock = vm::decreaseStock,
+                onSetStock = vm::setStock,
                 onAddProduct = vm::addNewProduct,
                 onUpdatePrice = vm::updatePrice,
                 onDeleteProduct = vm::deleteProduct

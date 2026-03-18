@@ -38,6 +38,12 @@ class InventoryViewModel(
         }
     }
 
+    fun setStock(product: ProductEntity, newStock: Int) {
+        viewModelScope.launch {
+            repository.updateStock(product.id, newStock.coerceAtLeast(0))
+        }
+    }
+
     fun addNewProduct(name: String, priceCents: Int, stock: Int) {
         viewModelScope.launch {
             val newId = "product_${System.currentTimeMillis()}"
