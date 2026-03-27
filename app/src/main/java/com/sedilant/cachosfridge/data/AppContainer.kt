@@ -2,6 +2,7 @@ package com.sedilant.cachosfridge.data
 
 import android.content.Context
 import androidx.room.Room
+import com.sedilant.cachosfridge.nfc.NfcManager
 
 class AppContainer(context: Context) {
     private val db = Room.databaseBuilder(
@@ -9,7 +10,7 @@ class AppContainer(context: Context) {
         FridgeDatabase::class.java,
         "cachos_fridge.db"
     )
-        .addMigrations(FridgeDatabase.MIGRATION_1_2)
+        .addMigrations(FridgeDatabase.MIGRATION_1_2, FridgeDatabase.MIGRATION_2_3)
         .fallbackToDestructiveMigration()
         .build()
 
@@ -19,5 +20,6 @@ class AppContainer(context: Context) {
         personDao = db.personDao(),
         boteDao = db.boteDao()
     )
-}
 
+    val nfcManager: NfcManager = NfcManager()
+}
