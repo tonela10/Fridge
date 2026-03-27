@@ -13,12 +13,16 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModel
@@ -28,7 +32,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.sedilant.cachosfridge.nfc.NfcManager
 import com.sedilant.cachosfridge.ui.theme.CachosFridgeTheme
+import com.sedilant.cachosfridge.ui.admin.AdminScreen
+import com.sedilant.cachosfridge.ui.admin.AdminViewModel
 import com.sedilant.cachosfridge.ui.addbote.AddBoteDialogScreen
 import com.sedilant.cachosfridge.ui.addbote.AddBoteViewModel
 import com.sedilant.cachosfridge.ui.addfunds.AddFundsDialogScreen
@@ -42,13 +49,15 @@ import com.sedilant.cachosfridge.ui.inventory.InventoryViewModel
 import com.sedilant.cachosfridge.ui.menu.MenuRailScreen
 import com.sedilant.cachosfridge.ui.payment.PaymentScreen
 import com.sedilant.cachosfridge.ui.payment.PaymentViewModel
-import com.sedilant.cachosfridge.ui.selectbuyer.SelectBuyerScreen
-import com.sedilant.cachosfridge.ui.selectbuyer.SelectBuyerViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val app = application as CachosFridgeApp
+        app.appContainer.nfcManager.init(this)
+
         enableEdgeToEdge()
         setContent {
             CachosFridgeTheme {
@@ -59,13 +68,37 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+private fun NfcLifecycleHandler(nfcManager: NfcManager) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            val activity = context as? ComponentActivity ?: return@LifecycleEventObserver
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> nfcManager.enableReader(activity)
+                Lifecycle.Event.ON_PAUSE -> nfcManager.disableReader(activity)
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+}
+
+@Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun AppNavigation() {
     val app = LocalContext.current.applicationContext as CachosFridgeApp
     val repository = app.appContainer.repository
+    val nfcManager = app.appContainer.nfcManager
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    NfcLifecycleHandler(nfcManager)
 
     val tweenDuration = 350
 
@@ -130,7 +163,10 @@ private fun AppNavigation() {
                         state = state,
                         onOpenMenu = { scope.launch { drawerState.open() } },
                         onProductClick = { product ->
-                            navController.navigate("${Routes.SelectBuyer}/${product.id}")
+                            navController.navigate("${Routes.Payment}/${product.id}")
+                        },
+                        onAdminAccess = {
+                            navController.navigate(Routes.Admin)
                         }
                     )
 
@@ -167,45 +203,21 @@ private fun AppNavigation() {
         }
 
         composable(
-            route = "${Routes.SelectBuyer}/{productId}",
+            route = "${Routes.Payment}/{productId}",
             arguments = listOf(navArgument("productId") { type = NavType.StringType })
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId").orEmpty()
-            val vm: SelectBuyerViewModel = viewModel(
-                key = "select-$productId",
-                factory = factory { SelectBuyerViewModel(repository, productId) }
-            )
-            val state by vm.uiState.collectAsStateWithLifecycle()
-            SelectBuyerScreen(
-                state = state,
-                onBack = { navController.popBackStack() },
-                onBuyerClick = { person ->
-                    val productId = state.product?.id ?: return@SelectBuyerScreen
-                    navController.navigate("${Routes.Payment}/$productId/${person.id}")
-                }
-            )
-        }
-
-        composable(
-            route = "${Routes.Payment}/{productId}/{personId}",
-            arguments = listOf(
-                navArgument("productId") { type = NavType.StringType },
-                navArgument("personId") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId").orEmpty()
-            val personId = backStackEntry.arguments?.getString("personId").orEmpty()
             val vm: PaymentViewModel = viewModel(
-                key = "payment-$productId-$personId",
-                factory = factory { PaymentViewModel(repository, productId, personId) }
+                key = "payment-$productId",
+                factory = factory { PaymentViewModel(repository, nfcManager, productId) }
             )
             val state by vm.uiState.collectAsStateWithLifecycle()
             PaymentScreen(
                 state = state,
                 onBack = { navController.popBackStack() },
                 onPayNow = vm::payNow,
-                onAddToAccount = vm::addToAccount,
-                onPayWithBote = vm::payWithBote,
+                onStartCardPayment = vm::startCardPayment,
+                onCancelCardPayment = vm::cancelCardPayment,
                 onResultConsumed = vm::consumeResult,
                 onPurchaseSuccess = {
                     navController.popBackStack(Routes.Home, inclusive = false)
@@ -270,17 +282,39 @@ private fun AppNavigation() {
                 }
             )
         }
+
+        composable(Routes.Admin) {
+            val vm: AdminViewModel = viewModel(factory = factory { AdminViewModel(repository, nfcManager) })
+            val state by vm.uiState.collectAsStateWithLifecycle()
+            AdminScreen(
+                state = state,
+                onBack = { navController.popBackStack() },
+                onCreatePerson = vm::createPerson,
+                onUpdatePerson = vm::updatePerson,
+                onDeletePerson = vm::deletePerson,
+                onStartLinkingCard = vm::startLinkingCard,
+                onCancelLinkingCard = vm::cancelLinkingCard,
+                onUnlinkCard = vm::unlinkCard,
+                onShowCreateDialog = vm::showCreateDialog,
+                onDismissCreateDialog = vm::dismissCreateDialog,
+                onStartEditing = vm::startEditing,
+                onDismissEditing = vm::dismissEditing,
+                onShowDeleteConfirm = vm::showDeleteConfirm,
+                onDismissDeleteConfirm = vm::dismissDeleteConfirm,
+                onConsumeLinkResult = vm::consumeLinkResult
+            )
+        }
     }
 }
 
 private object Routes {
     const val Home = "home"
-    const val SelectBuyer = "select_buyer"
     const val Payment = "payment"
     const val Debts = "deudas"
     const val Inventory = "inventario"
     const val AddBote = "add_bote"
     const val AddFunds = "add_funds"
+    const val Admin = "admin"
 }
 
 private fun <T : ViewModel> factory(create: () -> T): ViewModelProvider.Factory {
@@ -291,5 +325,3 @@ private fun <T : ViewModel> factory(create: () -> T): ViewModelProvider.Factory 
         }
     }
 }
-
-
