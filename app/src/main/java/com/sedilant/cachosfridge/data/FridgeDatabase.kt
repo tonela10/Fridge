@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [ProductEntity::class, PersonEntity::class, BoteEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class FridgeDatabase : RoomDatabase() {
@@ -19,9 +19,6 @@ abstract class FridgeDatabase : RoomDatabase() {
         /** v1 → v2: adds hasAsset column (default 0 = false) */
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // Guard against databases where the column was added before the
-                // migration was formalised (would otherwise crash with
-                // "duplicate column name: hasAsset").
                 val cursor = db.query("PRAGMA table_info(products)")
                 var columnExists = false
                 while (cursor.moveToNext()) {
@@ -39,6 +36,24 @@ abstract class FridgeDatabase : RoomDatabase() {
                 }
             }
         }
+
+        /** v2 → v3: adds nfcCardId column to people table */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                val cursor = db.query("PRAGMA table_info(people)")
+                var columnExists = false
+                while (cursor.moveToNext()) {
+                    val idx = cursor.getColumnIndex("name")
+                    if (idx != -1 && cursor.getString(idx) == "nfcCardId") {
+                        columnExists = true
+                        break
+                    }
+                }
+                cursor.close()
+                if (!columnExists) {
+                    db.execSQL("ALTER TABLE people ADD COLUMN nfcCardId TEXT")
+                }
+            }
+        }
     }
 }
-
