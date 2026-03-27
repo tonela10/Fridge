@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,16 +56,9 @@ fun PaymentScreen(
     onResultConsumed: () -> Unit,
     onPurchaseSuccess: () -> Unit
 ) {
-    LaunchedEffect(state.purchaseResult) {
-        if (state.purchaseResult == PurchaseResult.Success) {
-            kotlinx.coroutines.delay(1500)
-            onResultConsumed()
-            onPurchaseSuccess()
-        }
-    }
-
-    Scaffold(
-        topBar = {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.pago_title)) },
                 navigationIcon = {
@@ -223,20 +216,20 @@ fun PaymentScreen(
                 )
             }
 
-            if (state.purchaseResult == PurchaseResult.Success && state.cardPayerName != null) {
-                Text(
-                    text = stringResource(id = R.string.pago_cobrado_a, state.cardPayerName),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+
+    if (state.purchaseResult == PurchaseResult.Success) {
+        PaymentSuccessAnimation(
+            cardPayerName = state.cardPayerName,
+            onFinished = {
+                onResultConsumed()
+                onPurchaseSuccess()
+            }
+        )
+    }
+}
 }
 
 @Composable
