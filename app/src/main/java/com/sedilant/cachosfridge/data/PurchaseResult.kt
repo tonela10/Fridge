@@ -4,6 +4,6 @@ sealed interface PurchaseResult {
     data object Success : PurchaseResult
     data object ProductWithoutStock : PurchaseResult
     data object BoteInsufficient : PurchaseResult
+    data object CardNotLinked : PurchaseResult
     data object NotFound : PurchaseResult
 }
-
