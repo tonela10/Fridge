@@ -4,6 +4,11 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+sealed interface AddFundsResult {
+    data class Success(val personName: String) : AddFundsResult
+    data object CardNotLinked : AddFundsResult
+}
+
 interface FridgeRepository {
     fun observeProducts(): Flow<List<ProductEntity>>
     fun observePeople(): Flow<List<PersonEntity>>
@@ -15,6 +20,7 @@ interface FridgeRepository {
     suspend fun purchase(productId: String, personId: String, paymentMethod: PaymentMethod): PurchaseResult
     suspend fun purchaseWithCard(productId: String, nfcCardId: String): PurchaseResult
     suspend fun addFunds(personId: String, amountCents: Int)
+    suspend fun addFundsByNfcCard(nfcCardId: String, amountCents: Int): AddFundsResult
     suspend fun addBote(amountCents: Int)
     suspend fun updateStock(productId: String, newStock: Int)
     suspend fun addProduct(product: ProductEntity)
@@ -96,6 +102,13 @@ class FridgeRepositoryImpl(
         if (amountCents <= 0) return
         val person = personDao.getPerson(personId) ?: return
         personDao.updatePerson(person.copy(balanceCents = person.balanceCents + amountCents))
+    }
+
+    override suspend fun addFundsByNfcCard(nfcCardId: String, amountCents: Int): AddFundsResult {
+        if (amountCents <= 0) return AddFundsResult.CardNotLinked
+        val person = personDao.getPersonByNfcId(nfcCardId) ?: return AddFundsResult.CardNotLinked
+        personDao.updatePerson(person.copy(balanceCents = person.balanceCents + amountCents))
+        return AddFundsResult.Success(person.name)
     }
 
     override suspend fun addBote(amountCents: Int) {

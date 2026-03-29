@@ -135,7 +135,7 @@ private fun AppNavigation() {
             val state by vm.uiState.collectAsStateWithLifecycle()
             val addBoteVm: AddBoteViewModel = viewModel(factory = factory { AddBoteViewModel(repository) })
             val addBoteState by addBoteVm.uiState.collectAsStateWithLifecycle()
-            val addFundsVm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository) })
+            val addFundsVm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository, nfcManager) })
             val addFundsState by addFundsVm.uiState.collectAsStateWithLifecycle()
             var showAddBoteSheet by remember { mutableStateOf(false) }
             var showAddFundsSheet by remember { mutableStateOf(false) }
@@ -188,14 +188,11 @@ private fun AppNavigation() {
                         AddFundsDialogScreen(
                             state = addFundsState,
                             onDismiss = { showAddFundsSheet = false },
-                            onPersonSelected = addFundsVm::onPersonSelected,
                             onAmountChange = addFundsVm::onAmountChange,
                             onQuickAdd = addFundsVm::addQuickAmount,
-                            onConfirm = {
-                                addFundsVm.confirm {
-                                    showAddFundsSheet = false
-                                }
-                            }
+                            onStartNfcScan = addFundsVm::startNfcScan,
+                            onCancelNfcScan = addFundsVm::cancelNfcScan,
+                            onReset = addFundsVm::resetState
                         )
                     }
                 }
@@ -216,6 +213,7 @@ private fun AppNavigation() {
                 state = state,
                 onBack = { navController.popBackStack() },
                 onPayNow = vm::payNow,
+                onPayWithBote = vm::payWithBote,
                 onStartCardPayment = vm::startCardPayment,
                 onCancelCardPayment = vm::cancelCardPayment,
                 onResultConsumed = vm::consumeResult,
@@ -267,19 +265,16 @@ private fun AppNavigation() {
         }
 
         composable(Routes.AddFunds) {
-            val vm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository) })
+            val vm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository, nfcManager) })
             val state by vm.uiState.collectAsStateWithLifecycle()
             AddFundsDialogScreen(
                 state = state,
                 onDismiss = { navController.popBackStack() },
-                onPersonSelected = vm::onPersonSelected,
                 onAmountChange = vm::onAmountChange,
                 onQuickAdd = vm::addQuickAmount,
-                onConfirm = {
-                    vm.confirm {
-                        navController.popBackStack()
-                    }
-                }
+                onStartNfcScan = vm::startNfcScan,
+                onCancelNfcScan = vm::cancelNfcScan,
+                onReset = vm::resetState
             )
         }
 
