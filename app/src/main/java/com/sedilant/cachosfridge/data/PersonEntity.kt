@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class PersonEntity(
     @PrimaryKey val id: String,
     val name: String,
-    val balanceCents: Int
+    val balanceCents: Int,
+    val nfcCardId: String? = null
 )
 

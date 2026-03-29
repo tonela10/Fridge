@@ -12,7 +12,7 @@
     <string name="menu_inventario">Inventario</string>
     <string name="menu_deudas">Deudas</string>
     <string name="menu_anadir_bote">Anadir Bote</string>
-    <string name="menu_anadir_fondos">Anadir Fondos</string>
+    <string name="menu_anadir_fondos">Añadir Saldo</string>
     <string name="menu_cerrar">Cerrar menu</string>
 
     <string name="select_buyer_title">Seleccionar comprador</string>
@@ -29,6 +29,13 @@
     <string name="pago_anadir_cuenta">ANADIR A LA CUENTA</string>
     <string name="pago_pagar_bote">PAGAR DE BOTE</string>
     <string name="pago_bote_insuficiente">Bote insuficiente para este pago</string>
+    <string name="pago_tarjeta_cacho">PAGAR CON TARJETA CACHO</string>
+    <string name="pago_esperando_tarjeta">Acerca tu tarjeta NFC…</string>
+    <string name="pago_tarjeta_no_vinculada">Tarjeta no vinculada a ningun usuario</string>
+    <string name="pago_cobrado_a">Cobrado a %1$s</string>
+    <string name="pago_exitoso">¡Pago exitoso!</string>
+    <string name="pago_nfc_no_disponible">NFC no disponible en este dispositivo</string>
+    <string name="pago_pagar_bote_con_importe">PAGAR DE BOTE (%1$s)</string>
 
     <string name="deudas_title">DEUDAS</string>
     <string name="deudas_total_balance">Balance total: %1$s</string>
@@ -54,9 +61,13 @@
     <string name="confirmar">Confirmar</string>
 
     <string name="bote_title">Anadir Bote</string>
-    <string name="fondos_title">Anadir Fondos</string>
+    <string name="fondos_title">Añadir Saldo</string>
     <string name="fondos_persona_label">Persona</string>
     <string name="importe_label">Importe</string>
+    <string name="fondos_acerca_tarjeta">Acerca la tarjeta NFC para recargar</string>
+    <string name="fondos_tarjeta_no_vinculada">Tarjeta no vinculada a ningún usuario</string>
+    <string name="fondos_recarga_exitosa">¡Saldo añadido a %1$s!</string>
+    <string name="fondos_nfc_no_disponible">NFC no disponible en este dispositivo</string>
     <string name="quick_1">+1 EUR</string>
     <string name="quick_2">+2 EUR</string>
     <string name="quick_5">+5 EUR</string>
@@ -64,4 +75,25 @@
     <string name="cancelar">Cancelar</string>
 
     <string name="error_sin_stock">No hay stock disponible</string>
+
+    <string name="admin_title">ADMIN</string>
+    <string name="admin_password_title">Acceso Admin</string>
+    <string name="admin_password_hint">Contraseña</string>
+    <string name="admin_password_error">Contraseña incorrecta</string>
+    <string name="admin_acceder">Acceder</string>
+    <string name="admin_crear_usuario">Crear usuario</string>
+    <string name="admin_nombre">Nombre</string>
+    <string name="admin_saldo_inicial">Saldo inicial (EUR)</string>
+    <string name="admin_guardar">Guardar</string>
+    <string name="admin_editar">Editar</string>
+    <string name="admin_eliminar">Eliminar</string>
+    <string name="admin_vincular_tarjeta">Vincular Tarjeta</string>
+    <string name="admin_desvincular_tarjeta">Desvincular</string>
+    <string name="admin_esperando_tarjeta">Acerca una tarjeta NFC…</string>
+    <string name="admin_tarjeta_vinculada">Tarjeta: %1$s</string>
+    <string name="admin_sin_tarjeta">Sin tarjeta</string>
+    <string name="admin_tarjeta_asignada">Tarjeta vinculada correctamente</string>
+    <string name="admin_tarjeta_en_uso">Esta tarjeta ya esta asignada a otro usuario</string>
+    <string name="admin_confirmar_eliminar">¿Eliminar a %1$s?</string>
+    <string name="admin_saldo">Saldo: %1$s</string>
 </resources>

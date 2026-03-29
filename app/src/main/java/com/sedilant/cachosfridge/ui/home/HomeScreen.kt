@@ -1,7 +1,9 @@
 package com.sedilant.cachosfridge.ui.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +19,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,11 +28,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,18 +46,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.sedilant.cachosfridge.R
 import com.sedilant.cachosfridge.data.ProductEntity
 import com.sedilant.cachosfridge.ui.toEuroString
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 fun HomeScreen(
     state: HomeUiState,
     onOpenMenu: () -> Unit,
-    onProductClick: (ProductEntity) -> Unit
+    onProductClick: (ProductEntity) -> Unit,
+    onAdminAccess: () -> Unit = {}
 ) {
+    var showPasswordDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             Column {
@@ -59,7 +73,11 @@ fun HomeScreen(
                         ) {
                             Text(
                                 stringResource(id = R.string.home_title),
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.combinedClickable(
+                                    onClick = {},
+                                    onLongClick = { showPasswordDialog = true }
+                                )
                             )
                             Spacer(
                                 modifier = Modifier
@@ -105,10 +123,73 @@ fun HomeScreen(
             ) {
                 items(state.products, key = { it.id }) { product ->
                     ProductCard(product = product, onClick = { onProductClick(product) })
-                }
             }
         }
     }
+
+    if (showPasswordDialog) {
+        AdminPasswordDialog(
+            onDismiss = { showPasswordDialog = false },
+            onAccessGranted = {
+                showPasswordDialog = false
+                onAdminAccess()
+            }
+        )
+    }
+}
+}
+
+@Composable
+private fun AdminPasswordDialog(
+    onDismiss: () -> Unit,
+    onAccessGranted: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(id = R.string.admin_password_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        showError = false
+                    },
+                    label = { Text(stringResource(id = R.string.admin_password_hint)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    isError = showError,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (showError) {
+                    Text(
+                        text = stringResource(id = R.string.admin_password_error),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                if (password == "1234") {
+                    onAccessGranted()
+                } else {
+                    showError = true
+                }
+            }) {
+                Text(stringResource(id = R.string.admin_acceder))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(id = R.string.cancelar))
+            }
+        }
+    )
 }
 
 @Composable

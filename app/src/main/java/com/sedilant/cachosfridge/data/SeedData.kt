@@ -21,4 +21,3 @@ object SeedData {
 
     val bote = BoteEntity(balanceCents = 0)
 }
-

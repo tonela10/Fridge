@@ -2,8 +2,9 @@ package com.sedilant.cachosfridge.ui.addfunds
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sedilant.cachosfridge.data.AddFundsResult
 import com.sedilant.cachosfridge.data.FridgeRepository
-import com.sedilant.cachosfridge.data.PersonEntity
+import com.sedilant.cachosfridge.nfc.NfcManager
 import java.math.BigDecimal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,35 +13,35 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+sealed interface AddFundsStep {
+    data object EnterAmount : AddFundsStep
+    data object WaitingForCard : AddFundsStep
+    data class Success(val personName: String) : AddFundsStep
+    data object CardNotLinked : AddFundsStep
+}
+
 data class AddFundsUiState(
-    val people: List<PersonEntity> = emptyList(),
-    val selectedPersonId: String = "",
-    val amount: String = "0,00"
+    val amount: String = "0,00",
+    val step: AddFundsStep = AddFundsStep.EnterAmount,
+    val isNfcAvailable: Boolean = false
 )
 
 class AddFundsViewModel(
-    repository: FridgeRepository
+    private val repository: FridgeRepository,
+    private val nfcManager: NfcManager
 ) : ViewModel() {
 
-    private val peopleFlow = repository.observePeople()
-    private val repo = repository
-    private val selectedPersonId = MutableStateFlow("")
     private val amountValue = MutableStateFlow("0,00")
+    private val step = MutableStateFlow<AddFundsStep>(AddFundsStep.EnterAmount)
 
     val uiState: StateFlow<AddFundsUiState> = combine(
-        peopleFlow,
-        selectedPersonId,
-        amountValue
-    ) { people, selectedId, amount ->
-        val resolvedId = if (selectedId.isBlank() && people.isNotEmpty()) {
-            people.first().id
-        } else {
-            selectedId
-        }
+        amountValue,
+        step
+    ) { amount, currentStep ->
         AddFundsUiState(
-            people = people,
-            selectedPersonId = resolvedId,
-            amount = amount
+            amount = amount,
+            step = currentStep,
+            isNfcAvailable = nfcManager.isNfcAvailable
         )
     }.stateIn(
         scope = viewModelScope,
@@ -48,8 +49,19 @@ class AddFundsViewModel(
         initialValue = AddFundsUiState()
     )
 
-    fun onPersonSelected(personId: String) {
-        selectedPersonId.value = personId
+    init {
+        viewModelScope.launch {
+            nfcManager.tagUid.collect { uid ->
+                if (step.value == AddFundsStep.WaitingForCard) {
+                    val cents = parseToCents(amountValue.value)
+                    val result = repository.addFundsByNfcCard(uid, cents)
+                    step.value = when (result) {
+                        is AddFundsResult.Success -> AddFundsStep.Success(result.personName)
+                        is AddFundsResult.CardNotLinked -> AddFundsStep.CardNotLinked
+                    }
+                }
+            }
+        }
     }
 
     fun onAmountChange(value: String) {
@@ -61,14 +73,19 @@ class AddFundsViewModel(
         amountValue.value = centsToInput(value)
     }
 
-    fun confirm(onDone: () -> Unit) {
-        val personId = selectedPersonId.value
-        if (personId.isBlank()) return
+    fun startNfcScan() {
         val cents = parseToCents(amountValue.value)
-        viewModelScope.launch {
-            repo.addFunds(personId, cents)
-            onDone()
-        }
+        if (cents <= 0) return
+        step.value = AddFundsStep.WaitingForCard
+    }
+
+    fun cancelNfcScan() {
+        step.value = AddFundsStep.EnterAmount
+    }
+
+    fun resetState() {
+        amountValue.value = "0,00"
+        step.value = AddFundsStep.EnterAmount
     }
 
     private fun parseToCents(input: String): Int {
@@ -83,4 +100,3 @@ class AddFundsViewModel(
         return "$euros,${rest.toString().padStart(2, '0')}"
     }
 }
-
