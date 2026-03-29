@@ -84,6 +84,17 @@ class PaymentViewModel(
         }
     }
 
+    fun payWithBote() {
+        viewModelScope.launch {
+            val product = repository.getProduct(productId) ?: return@launch
+            if (product.stock <= 0) {
+                purchaseResult.value = PurchaseResult.ProductWithoutStock
+                return@launch
+            }
+            purchaseResult.value = repository.purchase(productId, "", PaymentMethod.PAY_WITH_BOTE)
+        }
+    }
+
     fun startCardPayment() {
         isWaitingForCard.value = true
         cardPayerName.value = null

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Contactless
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,6 +52,7 @@ fun PaymentScreen(
     state: PaymentUiState,
     onBack: () -> Unit,
     onPayNow: () -> Unit,
+    onPayWithBote: () -> Unit,
     onStartCardPayment: () -> Unit,
     onCancelCardPayment: () -> Unit,
     onResultConsumed: () -> Unit,
@@ -166,6 +168,33 @@ fun PaymentScreen(
                         }
                     }
 
+                    if (state.boteCents > 0) {
+                        Button(
+                            onClick = onPayWithBote,
+                            modifier = Modifier
+                                .fillMaxWidth(0.92f)
+                                .height(86.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            ),
+                            enabled = state.canPayWithBote
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(imageVector = Icons.Default.Savings, contentDescription = null)
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.pago_pagar_bote_con_importe,
+                                        state.boteCents.toEuroString()
+                                    ),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
+                    }
+
                     Button(
                         onClick = onStartCardPayment,
                         modifier = Modifier
@@ -210,6 +239,15 @@ fun PaymentScreen(
             if (state.purchaseResult == PurchaseResult.CardNotLinked) {
                 Text(
                     text = stringResource(id = R.string.pago_tarjeta_no_vinculada),
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (state.purchaseResult == PurchaseResult.BoteInsufficient) {
+                Text(
+                    text = stringResource(id = R.string.pago_bote_insuficiente),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -272,6 +310,7 @@ private fun PaymentScreenPreview() {
             ),
             onBack = {},
             onPayNow = {},
+            onPayWithBote = {},
             onStartCardPayment = {},
             onCancelCardPayment = {},
             onResultConsumed = {},
