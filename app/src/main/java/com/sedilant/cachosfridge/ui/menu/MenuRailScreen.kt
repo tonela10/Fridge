@@ -200,7 +200,7 @@ private fun MenuDrawerContentPreview() {
 
             MenuButton(
                 icon = Icons.Default.AttachMoney,
-                label = "Añadir Fondos",
+                label = "Añadir Saldo",
                 onClick = {}
             )
         }

@@ -12,7 +12,7 @@
     <string name="menu_inventario">Inventario</string>
     <string name="menu_deudas">Deudas</string>
     <string name="menu_anadir_bote">Anadir Bote</string>
-    <string name="menu_anadir_fondos">Anadir Fondos</string>
+    <string name="menu_anadir_fondos">Añadir Saldo</string>
     <string name="menu_cerrar">Cerrar menu</string>
 
     <string name="select_buyer_title">Seleccionar comprador</string>
@@ -35,6 +35,7 @@
     <string name="pago_cobrado_a">Cobrado a %1$s</string>
     <string name="pago_exitoso">¡Pago exitoso!</string>
     <string name="pago_nfc_no_disponible">NFC no disponible en este dispositivo</string>
+    <string name="pago_pagar_bote_con_importe">PAGAR DE BOTE (%1$s)</string>
 
     <string name="deudas_title">DEUDAS</string>
     <string name="deudas_total_balance">Balance total: %1$s</string>
@@ -60,9 +61,13 @@
     <string name="confirmar">Confirmar</string>
 
     <string name="bote_title">Anadir Bote</string>
-    <string name="fondos_title">Anadir Fondos</string>
+    <string name="fondos_title">Añadir Saldo</string>
     <string name="fondos_persona_label">Persona</string>
     <string name="importe_label">Importe</string>
+    <string name="fondos_acerca_tarjeta">Acerca la tarjeta NFC para recargar</string>
+    <string name="fondos_tarjeta_no_vinculada">Tarjeta no vinculada a ningún usuario</string>
+    <string name="fondos_recarga_exitosa">¡Saldo añadido a %1$s!</string>
+    <string name="fondos_nfc_no_disponible">NFC no disponible en este dispositivo</string>
     <string name="quick_1">+1 EUR</string>
     <string name="quick_2">+2 EUR</string>
     <string name="quick_5">+5 EUR</string>
