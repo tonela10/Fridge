@@ -6,14 +6,16 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [ProductEntity::class, PersonEntity::class, BoteEntity::class],
-    version = 3,
+    entities = [ProductEntity::class, PersonEntity::class, BoteEntity::class, TransactionEntity::class],
+    version = 4,
     exportSchema = false
 )
+@androidx.room.TypeConverters(TransactionTypeConverter::class)
 abstract class FridgeDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun personDao(): PersonDao
     abstract fun boteDao(): BoteDao
+    abstract fun transactionDao(): TransactionDao
 
     companion object {
         /** v1 → v2: adds hasAsset column (default 0 = false) */
@@ -53,6 +55,25 @@ abstract class FridgeDatabase : RoomDatabase() {
                 if (!columnExists) {
                     db.execSQL("ALTER TABLE people ADD COLUMN nfcCardId TEXT")
                 }
+            }
+        }
+
+        /** v3 → v4: creates transactions table */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS transactions (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        type TEXT NOT NULL,
+                        amountCents INTEGER NOT NULL,
+                        personId TEXT,
+                        personName TEXT,
+                        productName TEXT,
+                        timestampMs INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
             }
         }
     }

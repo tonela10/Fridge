@@ -96,4 +96,18 @@
     <string name="admin_tarjeta_en_uso">Esta tarjeta ya esta asignada a otro usuario</string>
     <string name="admin_confirmar_eliminar">¿Eliminar a %1$s?</string>
     <string name="admin_saldo">Saldo: %1$s</string>
+
+    <string name="menu_historial">Historial</string>
+    <string name="historial_title">HISTORIAL</string>
+    <string name="historial_todos">Todos</string>
+    <string name="historial_sin_transacciones">Sin transacciones</string>
+    <string name="historial_compra_efectivo">Compra (efectivo)</string>
+    <string name="historial_compra_efectivo_producto">Compra · %1$s</string>
+    <string name="historial_compra_cuenta">Compra (cuenta)</string>
+    <string name="historial_compra_cuenta_producto">Compra · %1$s</string>
+    <string name="historial_compra_bote">Compra (bote)</string>
+    <string name="historial_compra_bote_producto">Compra · %1$s</string>
+    <string name="historial_recarga_saldo">Recarga de saldo</string>
+    <string name="historial_recarga_bote">Recarga de bote</string>
+    <string name="historial_deuda_liquidada">Deuda liquidada</string>
 </resources>

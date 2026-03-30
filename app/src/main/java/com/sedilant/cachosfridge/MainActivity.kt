@@ -46,6 +46,8 @@ import com.sedilant.cachosfridge.ui.home.HomeScreen
 import com.sedilant.cachosfridge.ui.home.HomeViewModel
 import com.sedilant.cachosfridge.ui.inventory.InventoryScreen
 import com.sedilant.cachosfridge.ui.inventory.InventoryViewModel
+import com.sedilant.cachosfridge.ui.history.HistoryScreen
+import com.sedilant.cachosfridge.ui.history.HistoryViewModel
 import com.sedilant.cachosfridge.ui.menu.MenuRailScreen
 import com.sedilant.cachosfridge.ui.payment.PaymentScreen
 import com.sedilant.cachosfridge.ui.payment.PaymentViewModel
@@ -157,6 +159,10 @@ private fun AppNavigation() {
                 onAddFundsClick = {
                     scope.launch { drawerState.close() }
                     showAddFundsSheet = true
+                },
+                onHistoryClick = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.History)
                 },
                 content = {
                     HomeScreen(
@@ -278,6 +284,16 @@ private fun AppNavigation() {
             )
         }
 
+        composable(Routes.History) {
+            val vm: HistoryViewModel = viewModel(factory = factory { HistoryViewModel(repository) })
+            val state by vm.uiState.collectAsStateWithLifecycle()
+            HistoryScreen(
+                state = state,
+                onBack = { navController.popBackStack() },
+                onSelectPerson = vm::selectPerson
+            )
+        }
+
         composable(Routes.Admin) {
             val vm: AdminViewModel = viewModel(factory = factory { AdminViewModel(repository, nfcManager) })
             val state by vm.uiState.collectAsStateWithLifecycle()
@@ -310,6 +326,7 @@ private object Routes {
     const val AddBote = "add_bote"
     const val AddFunds = "add_funds"
     const val Admin = "admin"
+    const val History = "historial"
 }
 
 private fun <T : ViewModel> factory(create: () -> T): ViewModelProvider.Factory {
