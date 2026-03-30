@@ -259,6 +259,7 @@ fun CartPaymentScreen(
         if (state.purchaseResult == PurchaseResult.Success) {
             PaymentSuccessAnimation(
                 cardPayerName = state.cardPayerName,
+                cardPayerRemainingCents = state.cardPayerRemainingCents,
                 onFinished = {
                     onResultConsumed()
                     onPurchaseSuccess()

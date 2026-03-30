@@ -20,6 +20,7 @@ data class CartPaymentUiState(
     val canPayWithBote: Boolean = false,
     val isWaitingForCard: Boolean = false,
     val cardPayerName: String? = null,
+    val cardPayerRemainingCents: Int? = null,
     val purchaseResult: PurchaseResult? = null,
     val isNfcAvailable: Boolean = false
 )
@@ -33,6 +34,7 @@ class CartPaymentViewModel(
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val isWaitingForCard = MutableStateFlow(false)
     private val cardPayerName = MutableStateFlow<String?>(null)
+    private val cardPayerRemainingCents = MutableStateFlow<Int?>(null)
 
     val uiState: StateFlow<CartPaymentUiState> = combine(
         repository.observeBoteCents(),
@@ -48,6 +50,7 @@ class CartPaymentViewModel(
             canPayWithBote = boteCents >= cartState.totalCents,
             isWaitingForCard = waiting,
             cardPayerName = payerName,
+            cardPayerRemainingCents = cardPayerRemainingCents.value,
             purchaseResult = result,
             isNfcAvailable = nfcManager.isNfcAvailable
         )
@@ -67,6 +70,7 @@ class CartPaymentViewModel(
                     if (result == PurchaseResult.Success) {
                         val person = repository.getPersonByNfcId(uid)
                         cardPayerName.value = person?.name
+                        cardPayerRemainingCents.value = person?.balanceCents
                     }
                     purchaseResult.value = result
                 }
@@ -91,6 +95,7 @@ class CartPaymentViewModel(
     fun startCardPayment() {
         isWaitingForCard.value = true
         cardPayerName.value = null
+        cardPayerRemainingCents.value = null
         purchaseResult.value = null
     }
 
@@ -101,5 +106,6 @@ class CartPaymentViewModel(
     fun consumeResult() {
         purchaseResult.value = null
         cardPayerName.value = null
+        cardPayerRemainingCents.value = null
     }
 }

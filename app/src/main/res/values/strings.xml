@@ -33,6 +33,7 @@
     <string name="pago_esperando_tarjeta">Acerca tu tarjeta NFC…</string>
     <string name="pago_tarjeta_no_vinculada">Tarjeta no vinculada a ningun usuario</string>
     <string name="pago_cobrado_a">Cobrado a %1$s</string>
+    <string name="pago_saldo_restante">Saldo restante: %1$s</string>
     <string name="pago_exitoso">¡Pago exitoso!</string>
     <string name="pago_nfc_no_disponible">NFC no disponible en este dispositivo</string>
     <string name="pago_pagar_bote_con_importe">PAGAR DE BOTE (%1$s)</string>

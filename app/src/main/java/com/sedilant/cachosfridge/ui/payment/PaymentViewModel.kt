@@ -20,6 +20,7 @@ data class PaymentUiState(
     val canPayWithBote: Boolean = false,
     val isWaitingForCard: Boolean = false,
     val cardPayerName: String? = null,
+    val cardPayerRemainingCents: Int? = null,
     val purchaseResult: PurchaseResult? = null,
     val isNfcAvailable: Boolean = false
 )
@@ -32,13 +33,15 @@ class PaymentViewModel(
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val isWaitingForCard = MutableStateFlow(false)
     private val cardPayerName = MutableStateFlow<String?>(null)
+    private val cardPayerRemainingCents = MutableStateFlow<Int?>(null)
 
     val uiState: StateFlow<PaymentUiState> = combine(
         repository.observeBoteCents(),
         purchaseResult,
         isWaitingForCard,
-        cardPayerName
-    ) { boteCents, result, waiting, payerName ->
+        cardPayerName,
+        cardPayerRemainingCents
+    ) { boteCents, result, waiting, payerName, remainingCents ->
         val product = repository.getProduct(productId)
         val total = product?.priceCents ?: 0
         PaymentUiState(
@@ -48,6 +51,7 @@ class PaymentViewModel(
             canPayWithBote = boteCents >= total,
             isWaitingForCard = waiting,
             cardPayerName = payerName,
+            cardPayerRemainingCents = remainingCents,
             purchaseResult = result,
             isNfcAvailable = nfcManager.isNfcAvailable
         )
@@ -66,6 +70,7 @@ class PaymentViewModel(
                     if (result == PurchaseResult.Success) {
                         val person = repository.getPersonByNfcId(uid)
                         cardPayerName.value = person?.name
+                        cardPayerRemainingCents.value = person?.balanceCents
                     }
                     purchaseResult.value = result
                 }
@@ -98,6 +103,7 @@ class PaymentViewModel(
     fun startCardPayment() {
         isWaitingForCard.value = true
         cardPayerName.value = null
+        cardPayerRemainingCents.value = null
         purchaseResult.value = null
     }
 
@@ -107,6 +113,7 @@ class PaymentViewModel(
 
     fun consumeResult() {
         purchaseResult.value = null
+        cardPayerRemainingCents.value = null
         cardPayerName.value = null
     }
 }

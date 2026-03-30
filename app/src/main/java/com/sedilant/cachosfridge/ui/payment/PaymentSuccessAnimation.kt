@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sedilant.cachosfridge.R
+import com.sedilant.cachosfridge.ui.toEuroString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.cos
@@ -40,6 +41,7 @@ import kotlin.math.sin
 @Composable
 fun PaymentSuccessAnimation(
     cardPayerName: String?,
+    cardPayerRemainingCents: Int? = null,
     onFinished: () -> Unit
 ) {
     val bgAlpha = remember { Animatable(0f) }
@@ -185,6 +187,15 @@ fun PaymentSuccessAnimation(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
                 )
+                if (cardPayerRemainingCents != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(id = R.string.pago_saldo_restante, cardPayerRemainingCents.toEuroString()),
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
             }
         }
     }
