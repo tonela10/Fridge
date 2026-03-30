@@ -97,6 +97,14 @@
     <string name="admin_confirmar_eliminar">¿Eliminar a %1$s?</string>
     <string name="admin_saldo">Saldo: %1$s</string>
 
+    <string name="cart_title">Carrito</string>
+    <string name="cart_bubble_label">Ver carrito · %1$s</string>
+    <string name="cart_pagar">PAGAR</string>
+    <string name="cart_vaciar">Vaciar</string>
+    <string name="cart_productos_count">%1$d productos</string>
+    <string name="cart_eliminar_item">Eliminar</string>
+    <string name="pago_carrito_subtitle">%1$d productos</string>
+
     <string name="menu_historial">Historial</string>
     <string name="historial_title">HISTORIAL</string>
     <string name="historial_todos">Todos</string>

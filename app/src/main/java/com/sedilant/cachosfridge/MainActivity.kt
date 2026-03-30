@@ -40,6 +40,10 @@ import com.sedilant.cachosfridge.ui.addbote.AddBoteDialogScreen
 import com.sedilant.cachosfridge.ui.addbote.AddBoteViewModel
 import com.sedilant.cachosfridge.ui.addfunds.AddFundsDialogScreen
 import com.sedilant.cachosfridge.ui.addfunds.AddFundsViewModel
+import com.sedilant.cachosfridge.ui.cart.CartDetailsScreen
+import com.sedilant.cachosfridge.ui.cart.CartPaymentScreen
+import com.sedilant.cachosfridge.ui.cart.CartPaymentViewModel
+import com.sedilant.cachosfridge.ui.cart.CartViewModel
 import com.sedilant.cachosfridge.ui.debts.DebtsScreen
 import com.sedilant.cachosfridge.ui.debts.DebtsViewModel
 import com.sedilant.cachosfridge.ui.home.HomeScreen
@@ -100,6 +104,12 @@ private fun AppNavigation() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    // Cart ViewModel scoped to the whole navigation graph so it persists across screens
+    val cartVm: CartViewModel = viewModel(factory = factory { CartViewModel() })
+    val cartPaymentVm: CartPaymentViewModel = viewModel(
+        factory = factory { CartPaymentViewModel(repository, nfcManager, cartVm) }
+    )
+
     NfcLifecycleHandler(nfcManager)
 
     val tweenDuration = 350
@@ -135,6 +145,7 @@ private fun AppNavigation() {
         composable(Routes.Home) {
             val vm: HomeViewModel = viewModel(factory = factory { HomeViewModel(repository) })
             val state by vm.uiState.collectAsStateWithLifecycle()
+            val cartState by cartVm.uiState.collectAsStateWithLifecycle()
             val addBoteVm: AddBoteViewModel = viewModel(factory = factory { AddBoteViewModel(repository) })
             val addBoteState by addBoteVm.uiState.collectAsStateWithLifecycle()
             val addFundsVm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository, nfcManager) })
@@ -167,9 +178,13 @@ private fun AppNavigation() {
                 content = {
                     HomeScreen(
                         state = state,
+                        cartState = cartState,
                         onOpenMenu = { scope.launch { drawerState.open() } },
                         onProductClick = { product ->
-                            navController.navigate("${Routes.Payment}/${product.id}")
+                            cartVm.addItem(product)
+                        },
+                        onCartClick = {
+                            navController.navigate(Routes.Cart)
                         },
                         onAdminAccess = {
                             navController.navigate(Routes.Admin)
@@ -201,6 +216,37 @@ private fun AppNavigation() {
                             onReset = addFundsVm::resetState
                         )
                     }
+                }
+            )
+        }
+
+        composable(Routes.Cart) {
+            val cartState by cartVm.uiState.collectAsStateWithLifecycle()
+            CartDetailsScreen(
+                state = cartState,
+                onBack = { navController.popBackStack() },
+                onIncrement = cartVm::incrementItem,
+                onDecrement = cartVm::decrementItem,
+                onRemove = cartVm::removeItem,
+                onPay = {
+                    navController.navigate(Routes.CartPayment)
+                }
+            )
+        }
+
+        composable(Routes.CartPayment) {
+            val state by cartPaymentVm.uiState.collectAsStateWithLifecycle()
+            CartPaymentScreen(
+                state = state,
+                onBack = { navController.popBackStack() },
+                onPayNow = cartPaymentVm::payNow,
+                onPayWithBote = cartPaymentVm::payWithBote,
+                onStartCardPayment = cartPaymentVm::startCardPayment,
+                onCancelCardPayment = cartPaymentVm::cancelCardPayment,
+                onResultConsumed = cartPaymentVm::consumeResult,
+                onPurchaseSuccess = {
+                    cartVm.clearCart()
+                    navController.popBackStack(Routes.Home, inclusive = false)
                 }
             )
         }
@@ -320,6 +366,8 @@ private fun AppNavigation() {
 
 private object Routes {
     const val Home = "home"
+    const val Cart = "cart"
+    const val CartPayment = "cart_payment"
     const val Payment = "payment"
     const val Debts = "deudas"
     const val Inventory = "inventario"

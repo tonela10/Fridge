@@ -22,6 +22,8 @@ interface FridgeRepository {
     suspend fun ensureSeedData()
     suspend fun purchase(productId: String, personId: String, paymentMethod: PaymentMethod): PurchaseResult
     suspend fun purchaseWithCard(productId: String, nfcCardId: String): PurchaseResult
+    suspend fun purchaseCart(items: List<Pair<String, Int>>, personId: String, paymentMethod: PaymentMethod): PurchaseResult
+    suspend fun purchaseCartWithCard(items: List<Pair<String, Int>>, nfcCardId: String): PurchaseResult
     suspend fun addFunds(personId: String, amountCents: Int)
     suspend fun addFundsByNfcCard(nfcCardId: String, amountCents: Int): AddFundsResult
     suspend fun addBote(amountCents: Int)
@@ -129,6 +131,57 @@ class FridgeRepositoryImpl(
     override suspend fun purchaseWithCard(productId: String, nfcCardId: String): PurchaseResult {
         val person = personDao.getPersonByNfcId(nfcCardId) ?: return PurchaseResult.CardNotLinked
         return purchase(productId, person.id, PaymentMethod.PAY_WITH_CARD)
+    }
+
+    override suspend fun purchaseCart(
+        items: List<Pair<String, Int>>,
+        personId: String,
+        paymentMethod: PaymentMethod
+    ): PurchaseResult {
+        if (items.isEmpty()) return PurchaseResult.NotFound
+        val bote = boteDao.getBote() ?: BoteEntity(balanceCents = 0)
+
+        // Validate all products and stock before touching the DB
+        val products = items.map { (productId, qty) ->
+            val product = productDao.getProduct(productId) ?: return PurchaseResult.NotFound
+            if (product.stock < qty) return PurchaseResult.ProductWithoutStock
+            product to qty
+        }
+        val totalCents = products.sumOf { (product, qty) -> product.priceCents * qty }
+
+        if (paymentMethod == PaymentMethod.PAY_WITH_BOTE && bote.balanceCents < totalCents) {
+            return PurchaseResult.BoteInsufficient
+        }
+
+        db.withTransaction {
+            for ((product, qty) in products) {
+                productDao.updateProduct(product.copy(stock = product.stock - qty))
+            }
+            when (paymentMethod) {
+                PaymentMethod.PAY_NOW -> {
+                    val names = products.joinToString(", ") { (p, q) -> if (q > 1) "${p.name} x$q" else p.name }
+                    logTx(TransactionType.PURCHASE_NOW, totalCents, productName = names)
+                }
+                PaymentMethod.PAY_WITH_CARD -> {
+                    val person = personDao.getPerson(personId) ?: return@withTransaction
+                    personDao.updatePerson(person.copy(balanceCents = person.balanceCents - totalCents))
+                    val names = products.joinToString(", ") { (p, q) -> if (q > 1) "${p.name} x$q" else p.name }
+                    logTx(TransactionType.PURCHASE_CARD, totalCents, personId = person.id, personName = person.name, productName = names)
+                }
+                PaymentMethod.PAY_WITH_BOTE -> {
+                    boteDao.upsertBote(bote.copy(balanceCents = bote.balanceCents - totalCents))
+                    val names = products.joinToString(", ") { (p, q) -> if (q > 1) "${p.name} x$q" else p.name }
+                    logTx(TransactionType.PURCHASE_BOTE, totalCents, productName = names)
+                }
+            }
+        }
+
+        return PurchaseResult.Success
+    }
+
+    override suspend fun purchaseCartWithCard(items: List<Pair<String, Int>>, nfcCardId: String): PurchaseResult {
+        val person = personDao.getPersonByNfcId(nfcCardId) ?: return PurchaseResult.CardNotLinked
+        return purchaseCart(items, person.id, PaymentMethod.PAY_WITH_CARD)
     }
 
     override suspend fun addFunds(personId: String, amountCents: Int) {
