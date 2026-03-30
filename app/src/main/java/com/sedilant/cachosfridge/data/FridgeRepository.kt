@@ -3,6 +3,7 @@ package com.sedilant.cachosfridge.data
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 sealed interface AddFundsResult {
     data class Success(val personName: String) : AddFundsResult
@@ -13,6 +14,8 @@ interface FridgeRepository {
     fun observeProducts(): Flow<List<ProductEntity>>
     fun observePeople(): Flow<List<PersonEntity>>
     fun observeBoteCents(): Flow<Int>
+    fun observeTransactions(): Flow<List<TransactionEntity>>
+    fun observeTransactionsByPerson(personId: String): Flow<List<TransactionEntity>>
     suspend fun getProduct(productId: String): ProductEntity?
     suspend fun getPerson(personId: String): PersonEntity?
     suspend fun getPersonByNfcId(nfcId: String): PersonEntity?
@@ -38,7 +41,8 @@ class FridgeRepositoryImpl(
     private val db: FridgeDatabase,
     private val productDao: ProductDao,
     private val personDao: PersonDao,
-    private val boteDao: BoteDao
+    private val boteDao: BoteDao,
+    private val transactionDao: TransactionDao
 ) : FridgeRepository {
 
     override fun observeProducts(): Flow<List<ProductEntity>> = productDao.observeProducts()
@@ -46,6 +50,31 @@ class FridgeRepositoryImpl(
     override fun observePeople(): Flow<List<PersonEntity>> = personDao.observePeople()
 
     override fun observeBoteCents(): Flow<Int> = boteDao.observeBote().map { it?.balanceCents ?: 0 }
+
+    override fun observeTransactions(): Flow<List<TransactionEntity>> = transactionDao.observeAll()
+
+    override fun observeTransactionsByPerson(personId: String): Flow<List<TransactionEntity>> =
+        transactionDao.observeByPerson(personId)
+
+    private suspend fun logTx(
+        type: TransactionType,
+        amountCents: Int,
+        personId: String? = null,
+        personName: String? = null,
+        productName: String? = null
+    ) {
+        transactionDao.insert(
+            TransactionEntity(
+                id = UUID.randomUUID().toString(),
+                type = type,
+                amountCents = amountCents,
+                personId = personId,
+                personName = personName,
+                productName = productName,
+                timestampMs = System.currentTimeMillis()
+            )
+        )
+    }
 
     override suspend fun getProduct(productId: String): ProductEntity? = productDao.getProduct(productId)
 
@@ -79,13 +108,17 @@ class FridgeRepositoryImpl(
         db.withTransaction {
             productDao.updateProduct(product.copy(stock = product.stock - 1))
             when (paymentMethod) {
-                PaymentMethod.PAY_NOW -> Unit
+                PaymentMethod.PAY_NOW -> {
+                    logTx(TransactionType.PURCHASE_NOW, product.priceCents, productName = product.name)
+                }
                 PaymentMethod.PAY_WITH_CARD -> {
                     val person = personDao.getPerson(personId) ?: return@withTransaction
                     personDao.updatePerson(person.copy(balanceCents = person.balanceCents - product.priceCents))
+                    logTx(TransactionType.PURCHASE_CARD, product.priceCents, personId = person.id, personName = person.name, productName = product.name)
                 }
                 PaymentMethod.PAY_WITH_BOTE -> {
                     boteDao.upsertBote(bote.copy(balanceCents = bote.balanceCents - product.priceCents))
+                    logTx(TransactionType.PURCHASE_BOTE, product.priceCents, productName = product.name)
                 }
             }
         }
@@ -102,12 +135,14 @@ class FridgeRepositoryImpl(
         if (amountCents <= 0) return
         val person = personDao.getPerson(personId) ?: return
         personDao.updatePerson(person.copy(balanceCents = person.balanceCents + amountCents))
+        logTx(TransactionType.ADD_FUNDS, amountCents, personId = person.id, personName = person.name)
     }
 
     override suspend fun addFundsByNfcCard(nfcCardId: String, amountCents: Int): AddFundsResult {
         if (amountCents <= 0) return AddFundsResult.CardNotLinked
         val person = personDao.getPersonByNfcId(nfcCardId) ?: return AddFundsResult.CardNotLinked
         personDao.updatePerson(person.copy(balanceCents = person.balanceCents + amountCents))
+        logTx(TransactionType.ADD_FUNDS, amountCents, personId = person.id, personName = person.name)
         return AddFundsResult.Success(person.name)
     }
 
@@ -115,6 +150,7 @@ class FridgeRepositoryImpl(
         if (amountCents <= 0) return
         val bote = boteDao.getBote() ?: BoteEntity(balanceCents = 0)
         boteDao.upsertBote(bote.copy(balanceCents = bote.balanceCents + amountCents))
+        logTx(TransactionType.ADD_BOTE, amountCents)
     }
 
     override suspend fun updateStock(productId: String, newStock: Int) {
@@ -142,6 +178,7 @@ class FridgeRepositoryImpl(
         val person = personDao.getPerson(personId) ?: return
         if (person.balanceCents < 0) {
             personDao.updatePerson(person.copy(balanceCents = 0))
+            logTx(TransactionType.SETTLE_DEBT, -person.balanceCents, personId = person.id, personName = person.name)
         }
     }
 

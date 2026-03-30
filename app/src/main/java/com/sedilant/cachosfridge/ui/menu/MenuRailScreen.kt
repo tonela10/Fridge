@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.MoveToInbox
 import androidx.compose.material3.DrawerState
@@ -41,7 +42,8 @@ fun MenuRailScreen(
     onInventoryClick: () -> Unit,
     onDebtsClick: () -> Unit,
     onAddBoteClick: () -> Unit,
-    onAddFundsClick: () -> Unit
+    onAddFundsClick: () -> Unit,
+    onHistoryClick: () -> Unit
 ) {
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -100,6 +102,13 @@ fun MenuRailScreen(
                         icon = Icons.Default.AttachMoney,
                         label = stringResource(id = R.string.menu_anadir_fondos),
                         onClick = onAddFundsClick
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    MenuButton(
+                        icon = Icons.Default.History,
+                        label = stringResource(id = R.string.menu_historial),
+                        onClick = onHistoryClick
                     )
                 }
             }
