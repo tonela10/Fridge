@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
@@ -147,7 +149,23 @@ private fun AppNavigation() {
                 ) + fadeOut(animationSpec = tween(tweenDuration))
             }
         ) {
-            composable(Routes.Home) {
+            composable(
+            Routes.Home,
+            exitTransition = {
+                if (targetState.destination.route == Routes.Cart) ExitTransition.None
+                else slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeOut(animationSpec = tween(tweenDuration))
+            },
+            popEnterTransition = {
+                if (initialState.destination.route == Routes.Cart) EnterTransition.None
+                else slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeIn(animationSpec = tween(tweenDuration))
+            }
+        ) {
                 val animScope = this
                 val vm: HomeViewModel = viewModel(factory = factory { HomeViewModel(repository) })
                 val state by vm.uiState.collectAsStateWithLifecycle()
