@@ -1,5 +1,14 @@
 package com.sedilant.cachosfridge.ui.cart
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,99 +53,115 @@ import com.sedilant.cachosfridge.R
 import com.sedilant.cachosfridge.data.ProductEntity
 import com.sedilant.cachosfridge.ui.toEuroString
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun CartDetailsScreen(
     state: CartUiState,
     onBack: () -> Unit,
     onIncrement: (String) -> Unit,
     onDecrement: (String) -> Unit,
     onRemove: (String) -> Unit,
-    onPay: () -> Unit
+    onPay: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            stringResource(R.string.cart_title),
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.accion_volver)
+    with(sharedTransitionScope) {
+        Scaffold(
+            modifier = Modifier.sharedBounds(
+                sharedContentState = rememberSharedContentState("cart_bubble"),
+                animatedVisibilityScope = animatedVisibilityScope,
+                enter = fadeIn(tween(300, delayMillis = 100)),
+                exit = fadeOut(tween(200)),
+                boundsTransform = { _, _ ->
+                    spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                }
+            ),
+            topBar = {
+                Column {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                stringResource(R.string.cart_title),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.accion_volver)
+                                )
+                            }
+                        }
+                    )
+                    HorizontalDivider()
+                }
+            },
+            bottomBar = {
+                Surface(
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 4.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Total",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = state.totalCents.toEuroString(),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Button(
+                            onClick = onPay,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            enabled = state.items.isNotEmpty()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.cart_pagar),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
-                )
-                HorizontalDivider()
-            }
-        },
-        bottomBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 4.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Total",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = state.totalCents.toEuroString(),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Button(
-                        onClick = onPay,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        enabled = state.items.isNotEmpty()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cart_pagar),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
                 }
             }
-        }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(state.items, key = { it.product.id }) { cartItem ->
-                CartItemRow(
-                    cartItem = cartItem,
-                    onIncrement = { onIncrement(cartItem.product.id) },
-                    onDecrement = { onDecrement(cartItem.product.id) },
-                    onRemove = { onRemove(cartItem.product.id) }
-                )
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(state.items, key = { it.product.id }) { cartItem ->
+                    CartItemRow(
+                        cartItem = cartItem,
+                        onIncrement = { onIncrement(cartItem.product.id) },
+                        onDecrement = { onDecrement(cartItem.product.id) },
+                        onRemove = { onRemove(cartItem.product.id) }
+                    )
+                }
             }
         }
     }

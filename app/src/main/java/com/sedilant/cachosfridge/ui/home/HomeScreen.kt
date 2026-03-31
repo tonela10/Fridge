@@ -1,6 +1,9 @@
 package com.sedilant.cachosfridge.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -66,15 +69,17 @@ import com.sedilant.cachosfridge.data.ProductEntity
 import com.sedilant.cachosfridge.ui.cart.CartUiState
 import com.sedilant.cachosfridge.ui.toEuroString
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 fun HomeScreen(
     state: HomeUiState,
     cartState: CartUiState,
     onOpenMenu: () -> Unit,
     onProductClick: (ProductEntity) -> Unit,
     onCartClick: () -> Unit,
-    onAdminAccess: () -> Unit = {}
+    onAdminAccess: () -> Unit = {},
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     var showPasswordDialog by remember { mutableStateOf(false) }
 
@@ -168,7 +173,9 @@ fun HomeScreen(
                 CartBubble(
                     itemCount = cartState.itemCount,
                     totalCents = cartState.totalCents,
-                    onClick = onCartClick
+                    onClick = onCartClick,
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope
                 )
             }
         }
@@ -185,63 +192,80 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun CartBubble(
     itemCount: Int,
     totalCents: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    ElevatedCard(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50.dp))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(50.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            BadgedBox(
-                badge = {
-                    Badge(
-                        containerColor = MaterialTheme.colorScheme.onPrimary,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ) {
-                        Text(
-                            text = itemCount.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
+    with(sharedTransitionScope) {
+        ElevatedCard(
+            modifier = Modifier
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState("cart_bubble"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    enter = fadeIn(tween(200)),
+                    exit = fadeOut(tween(200)),
+                    boundsTransform = { _, _ ->
+                        spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMediumLow
                         )
                     }
-                }
+                )
+                .clip(RoundedCornerShape(50.dp))
+                .clickable(onClick = onClick),
+            shape = RoundedCornerShape(50.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp)
+                BadgedBox(
+                    badge = {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.onPrimary,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                text = itemCount.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+                Text(
+                    text = totalCents.toEuroString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "·",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.cart_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
-            Text(
-                text = totalCents.toEuroString(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "·",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = stringResource(R.string.cart_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
         }
     }
 }
@@ -309,7 +333,7 @@ private fun ProductCard(product: ProductEntity, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-            ProductImageBox(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
@@ -337,16 +361,6 @@ private fun ProductCard(product: ProductEntity, onClick: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ProductImageBox(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    androidx.compose.material3.Surface(modifier = modifier) {
-        content()
     }
 }
 
