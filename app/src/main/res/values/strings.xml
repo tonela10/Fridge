@@ -60,13 +60,18 @@
     <string name="inventario_price_euro">Precio (EUR)</string>
     <string name="inventario_stock_input">Stock</string>
     <string name="confirmar">Confirmar</string>
+    <string name="continuar">Continuar</string>
+    <string name="cerrar">Cerrar</string>
+    <string name="reintentar">Reintentar</string>
 
     <string name="bote_title">Anadir Bote</string>
     <string name="fondos_title">Añadir Saldo</string>
     <string name="fondos_persona_label">Persona</string>
     <string name="importe_label">Importe</string>
-    <string name="fondos_acerca_tarjeta">Acerca la tarjeta NFC para recargar</string>
+    <string name="fondos_acerca_tarjeta">Acerca tu tarjeta NFC</string>
+    <string name="fondos_acerca_tarjeta_description">La tarjeta solo se utiliza para identificar tu saldo local.</string>
     <string name="fondos_tarjeta_no_vinculada">Tarjeta no vinculada a ningún usuario</string>
+    <string name="fondos_tarjeta_no_vinculada_description">Un administrador debe vincular esta tarjeta antes de usarla.</string>
     <string name="fondos_recarga_exitosa">¡Saldo añadido a %1$s!</string>
     <string name="fondos_nfc_no_disponible">NFC no disponible en este dispositivo</string>
     <string name="quick_1">+1 EUR</string>
@@ -74,6 +79,24 @@
     <string name="quick_5">+5 EUR</string>
     <string name="confirmar_ingreso">Confirmar ingreso</string>
     <string name="cancelar">Cancelar</string>
+    <string name="fondos_paypal_no_configurado">Bote de PayPal no configurado</string>
+    <string name="fondos_paypal_no_configurado_description">Pide a un administrador que añada el enlace del bote desde el panel ADMIN.</string>
+    <string name="fondos_identificar_title">Identifícate para añadir saldo</string>
+    <string name="fondos_identificar_description">Primero acerca tu tarjeta Cacho. Después elegirás cuánto aportar al bote.</string>
+    <string name="fondos_escanear_tarjeta">ESCANEAR TARJETA</string>
+    <string name="fondos_saldo_actual">Saldo actual: %1$s</string>
+    <string name="fondos_liquidar_deuda">Liquidar deuda exacta (%1$s)</string>
+    <string name="fondos_paypal_amount">Aporta %1$s al bote</string>
+    <string name="fondos_paypal_scan_description">Escanea este QR con tu teléfono para abrir el bote de PayPal.</string>
+    <string name="fondos_paypal_qr_description">Código QR del bote de PayPal</string>
+    <string name="fondos_paypal_manual_amount">Introduce manualmente en PayPal el importe mostrado. El saldo no cambiará hasta que un administrador compruebe la aportación.</string>
+    <string name="fondos_paypal_sent">YA HE APORTADO</string>
+    <string name="fondos_paypal_submitted">Aportación pendiente</string>
+    <string name="fondos_paypal_submitted_description">Un administrador comprobará PayPal y aprobará el saldo.</string>
+    <string name="fondos_paypal_already_pending">Ya tienes una aportación pendiente</string>
+    <string name="fondos_paypal_pending_amount">Importe pendiente: %1$s</string>
+    <string name="fondos_paypal_error">No se pudo crear la solicitud</string>
+    <string name="fondos_paypal_error_description">Comprueba el importe e inténtalo de nuevo.</string>
 
     <string name="error_sin_stock">No hay stock disponible</string>
 
@@ -97,6 +120,22 @@
     <string name="admin_tarjeta_en_uso">Esta tarjeta ya esta asignada a otro usuario</string>
     <string name="admin_confirmar_eliminar">¿Eliminar a %1$s?</string>
     <string name="admin_saldo">Saldo: %1$s</string>
+    <string name="admin_users_title">Usuarios</string>
+    <string name="admin_paypal_pool_title">PayPal Money Pool</string>
+    <string name="admin_paypal_pool_description">Configura solo el enlace compartido del bote. Nunca introduzcas credenciales de PayPal.</string>
+    <string name="admin_paypal_pool_url">Enlace del bote de PayPal</string>
+    <string name="admin_paypal_save">Guardar enlace</string>
+    <string name="admin_paypal_clear">Borrar</string>
+    <string name="admin_paypal_saved">Enlace guardado correctamente</string>
+    <string name="admin_paypal_error_empty">Introduce un enlace</string>
+    <string name="admin_paypal_error_invalid">El enlace no es válido</string>
+    <string name="admin_paypal_error_https">El enlace debe comenzar por https://</string>
+    <string name="admin_paypal_error_host">El enlace debe pertenecer a paypal.com</string>
+    <string name="admin_paypal_error_credentials">El enlace no puede contener credenciales</string>
+    <string name="admin_paypal_pending_title">Aportaciones pendientes</string>
+    <string name="admin_paypal_verify_hint">Comprueba la aportación en PayPal antes de aprobarla.</string>
+    <string name="admin_paypal_approve">Aprobar</string>
+    <string name="admin_paypal_reject">Rechazar</string>
 
     <string name="cart_title">Carrito</string>
     <string name="cart_bubble_label">Ver carrito · %1$s</string>

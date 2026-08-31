@@ -239,6 +239,10 @@ private fun AppNavigation() {
                                 onQuickAdd = addFundsVm::addQuickAmount,
                                 onStartNfcScan = addFundsVm::startNfcScan,
                                 onCancelNfcScan = addFundsVm::cancelNfcScan,
+                                onSettleExactDebt = addFundsVm::settleExactDebt,
+                                onShowQr = addFundsVm::showQr,
+                                onBackToAmount = addFundsVm::backToAmount,
+                                onSubmitContribution = addFundsVm::submitContribution,
                                 onReset = addFundsVm::resetState
                             )
                         }
@@ -360,6 +364,10 @@ private fun AppNavigation() {
                 onQuickAdd = vm::addQuickAmount,
                 onStartNfcScan = vm::startNfcScan,
                 onCancelNfcScan = vm::cancelNfcScan,
+                onSettleExactDebt = vm::settleExactDebt,
+                onShowQr = vm::showQr,
+                onBackToAmount = vm::backToAmount,
+                onSubmitContribution = vm::submitContribution,
                 onReset = vm::resetState
             )
         }
@@ -392,7 +400,12 @@ private fun AppNavigation() {
                 onDismissEditing = vm::dismissEditing,
                 onShowDeleteConfirm = vm::showDeleteConfirm,
                 onDismissDeleteConfirm = vm::dismissDeleteConfirm,
-                onConsumeLinkResult = vm::consumeLinkResult
+                onConsumeLinkResult = vm::consumeLinkResult,
+                onPayPalPoolUrlChange = vm::onPayPalPoolUrlChange,
+                onSavePayPalPoolUrl = vm::savePayPalPoolUrl,
+                onClearPayPalPoolUrl = vm::clearPayPalPoolUrl,
+                onApproveTopUp = vm::approveTopUp,
+                onRejectTopUp = vm::rejectTopUp
             )
         }
     }
