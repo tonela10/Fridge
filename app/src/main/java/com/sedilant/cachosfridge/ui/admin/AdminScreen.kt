@@ -20,6 +20,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Contactless
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.CreditCardOff
@@ -57,8 +60,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sedilant.cachosfridge.R
+import com.sedilant.cachosfridge.data.PayPalPoolUrlError
 import com.sedilant.cachosfridge.data.PersonEntity
+import com.sedilant.cachosfridge.data.TopUpRequestEntity
 import com.sedilant.cachosfridge.ui.toEuroString
+import java.text.DateFormat
+import java.util.Date
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +84,12 @@ fun AdminScreen(
     onDismissEditing: () -> Unit,
     onShowDeleteConfirm: (PersonEntity) -> Unit,
     onDismissDeleteConfirm: () -> Unit,
-    onConsumeLinkResult: () -> Unit
+    onConsumeLinkResult: () -> Unit,
+    onPayPalPoolUrlChange: (String) -> Unit,
+    onSavePayPalPoolUrl: () -> Unit,
+    onClearPayPalPoolUrl: () -> Unit,
+    onApproveTopUp: (String) -> Unit,
+    onRejectTopUp: (String) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -205,6 +217,43 @@ fun AdminScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                item(key = "paypal-settings") {
+                    PayPalPoolSettingsCard(
+                        url = state.paypalPoolUrl,
+                        error = state.paypalPoolUrlError,
+                        saved = state.paypalPoolUrlSaved,
+                        onUrlChange = onPayPalPoolUrlChange,
+                        onSave = onSavePayPalPoolUrl,
+                        onClear = onClearPayPalPoolUrl
+                    )
+                }
+
+                if (state.pendingTopUps.isNotEmpty()) {
+                    item(key = "pending-title") {
+                        Text(
+                            text = stringResource(R.string.admin_paypal_pending_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                    items(state.pendingTopUps, key = { "top-up-${it.id}" }) { request ->
+                        PendingTopUpCard(
+                            request = request,
+                            onApprove = { onApproveTopUp(request.id) },
+                            onReject = { onRejectTopUp(request.id) }
+                        )
+                    }
+                }
+
+                item(key = "people-title") {
+                    Text(
+                        text = stringResource(R.string.admin_users_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
                 items(state.people, key = { it.id }) { person ->
                     PersonCard(
                         person = person,
@@ -256,6 +305,141 @@ fun AdminScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun PayPalPoolSettingsCard(
+    url: String,
+    error: PayPalPoolUrlError?,
+    saved: Boolean,
+    onUrlChange: (String) -> Unit,
+    onSave: () -> Unit,
+    onClear: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.AccountBalanceWallet, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.admin_paypal_pool_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = stringResource(R.string.admin_paypal_pool_description),
+                style = MaterialTheme.typography.bodySmall
+            )
+            OutlinedTextField(
+                value = url,
+                onValueChange = onUrlChange,
+                label = { Text(stringResource(R.string.admin_paypal_pool_url)) },
+                singleLine = true,
+                isError = error != null,
+                supportingText = error?.let {
+                    { Text(payPalUrlErrorText(it)) }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(onClick = onSave, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.admin_paypal_save))
+                }
+                OutlinedButton(
+                    onClick = onClear,
+                    enabled = url.isNotEmpty(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.admin_paypal_clear))
+                }
+            }
+            if (saved) {
+                Text(
+                    text = stringResource(R.string.admin_paypal_saved),
+                    color = Color(0xFF16A34A),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun payPalUrlErrorText(error: PayPalPoolUrlError): String = when (error) {
+    PayPalPoolUrlError.EMPTY -> stringResource(R.string.admin_paypal_error_empty)
+    PayPalPoolUrlError.INVALID -> stringResource(R.string.admin_paypal_error_invalid)
+    PayPalPoolUrlError.HTTPS_REQUIRED -> stringResource(R.string.admin_paypal_error_https)
+    PayPalPoolUrlError.INVALID_HOST -> stringResource(R.string.admin_paypal_error_host)
+    PayPalPoolUrlError.CREDENTIALS_NOT_ALLOWED ->
+        stringResource(R.string.admin_paypal_error_credentials)
+}
+
+@Composable
+private fun PendingTopUpCard(
+    request: TopUpRequestEntity,
+    onApprove: () -> Unit,
+    onReject: () -> Unit
+) {
+    val timestamp = remember(request.createdAtMs) {
+        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+            .format(Date(request.createdAtMs))
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(request.personName, fontWeight = FontWeight.Bold)
+                    Text(timestamp, style = MaterialTheme.typography.bodySmall)
+                }
+                Text(
+                    request.amountCents.toEuroString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = stringResource(R.string.admin_paypal_verify_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(onClick = onReject, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(stringResource(R.string.admin_paypal_reject))
+                }
+                Button(onClick = onApprove, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(stringResource(R.string.admin_paypal_approve))
+                }
+            }
+        }
     }
 }
 

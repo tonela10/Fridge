@@ -10,7 +10,12 @@ class AppContainer(context: Context) {
         FridgeDatabase::class.java,
         "cachos_fridge.db"
     )
-        .addMigrations(FridgeDatabase.MIGRATION_1_2, FridgeDatabase.MIGRATION_2_3, FridgeDatabase.MIGRATION_3_4)
+        .addMigrations(
+            FridgeDatabase.MIGRATION_1_2,
+            FridgeDatabase.MIGRATION_2_3,
+            FridgeDatabase.MIGRATION_3_4,
+            FridgeDatabase.MIGRATION_4_5
+        )
         .fallbackToDestructiveMigration()
         .build()
 
@@ -19,7 +24,9 @@ class AppContainer(context: Context) {
         productDao = db.productDao(),
         personDao = db.personDao(),
         boteDao = db.boteDao(),
-        transactionDao = db.transactionDao()
+        transactionDao = db.transactionDao(),
+        appSettingsDao = db.appSettingsDao(),
+        topUpRequestDao = db.topUpRequestDao()
     )
 
     val nfcManager: NfcManager = NfcManager()

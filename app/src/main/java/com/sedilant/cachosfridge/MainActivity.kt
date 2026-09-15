@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,6 +44,10 @@ import com.sedilant.cachosfridge.ui.addbote.AddBoteDialogScreen
 import com.sedilant.cachosfridge.ui.addbote.AddBoteViewModel
 import com.sedilant.cachosfridge.ui.addfunds.AddFundsDialogScreen
 import com.sedilant.cachosfridge.ui.addfunds.AddFundsViewModel
+import com.sedilant.cachosfridge.ui.cart.CartDetailsScreen
+import com.sedilant.cachosfridge.ui.cart.CartPaymentScreen
+import com.sedilant.cachosfridge.ui.cart.CartPaymentViewModel
+import com.sedilant.cachosfridge.ui.cart.CartViewModel
 import com.sedilant.cachosfridge.ui.debts.DebtsScreen
 import com.sedilant.cachosfridge.ui.debts.DebtsViewModel
 import com.sedilant.cachosfridge.ui.home.HomeScreen
@@ -90,8 +98,8 @@ private fun NfcLifecycleHandler(nfcManager: NfcManager) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun AppNavigation() {
     val app = LocalContext.current.applicationContext as CachosFridgeApp
     val repository = app.appContainer.repository
@@ -100,107 +108,183 @@ private fun AppNavigation() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    // Cart ViewModel scoped to the whole navigation graph so it persists across screens
+    val cartVm: CartViewModel = viewModel(factory = factory { CartViewModel() })
+    val cartPaymentVm: CartPaymentViewModel = viewModel(
+        factory = factory { CartPaymentViewModel(repository, nfcManager, cartVm) }
+    )
+
     NfcLifecycleHandler(nfcManager)
 
     val tweenDuration = 350
 
-    NavHost(
-        navController = navController,
-        startDestination = Routes.Home,
-        enterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { fullWidth -> fullWidth },
-                animationSpec = tween(tweenDuration)
-            ) + fadeIn(animationSpec = tween(tweenDuration))
-        },
-        exitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { fullWidth -> -fullWidth / 3 },
-                animationSpec = tween(tweenDuration)
-            ) + fadeOut(animationSpec = tween(tweenDuration))
-        },
-        popEnterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { fullWidth -> -fullWidth / 3 },
-                animationSpec = tween(tweenDuration)
-            ) + fadeIn(animationSpec = tween(tweenDuration))
-        },
-        popExitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { fullWidth -> fullWidth },
-                animationSpec = tween(tweenDuration)
-            ) + fadeOut(animationSpec = tween(tweenDuration))
-        }
-    ) {
-        composable(Routes.Home) {
-            val vm: HomeViewModel = viewModel(factory = factory { HomeViewModel(repository) })
-            val state by vm.uiState.collectAsStateWithLifecycle()
-            val addBoteVm: AddBoteViewModel = viewModel(factory = factory { AddBoteViewModel(repository) })
-            val addBoteState by addBoteVm.uiState.collectAsStateWithLifecycle()
-            val addFundsVm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository, nfcManager) })
-            val addFundsState by addFundsVm.uiState.collectAsStateWithLifecycle()
-            var showAddBoteSheet by remember { mutableStateOf(false) }
-            var showAddFundsSheet by remember { mutableStateOf(false) }
+    SharedTransitionLayout {
+        val sharedTransScope = this
 
-            MenuRailScreen(
-                drawerState = drawerState,
-                onInventoryClick = {
-                    scope.launch { drawerState.close() }
-                    navController.navigate(Routes.Inventory)
-                },
-                onDebtsClick = {
-                    scope.launch { drawerState.close() }
-                    navController.navigate(Routes.Debts)
-                },
-                onAddBoteClick = {
-                    scope.launch { drawerState.close() }
-                    showAddBoteSheet = true
-                },
-                onAddFundsClick = {
-                    scope.launch { drawerState.close() }
-                    showAddFundsSheet = true
-                },
-                onHistoryClick = {
-                    scope.launch { drawerState.close() }
-                    navController.navigate(Routes.History)
-                },
-                content = {
-                    HomeScreen(
-                        state = state,
-                        onOpenMenu = { scope.launch { drawerState.open() } },
-                        onProductClick = { product ->
-                            navController.navigate("${Routes.Payment}/${product.id}")
-                        },
-                        onAdminAccess = {
-                            navController.navigate(Routes.Admin)
-                        }
-                    )
+        NavHost(
+            navController = navController,
+            startDestination = Routes.Home,
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeIn(animationSpec = tween(tweenDuration))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeOut(animationSpec = tween(tweenDuration))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeIn(animationSpec = tween(tweenDuration))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeOut(animationSpec = tween(tweenDuration))
+            }
+        ) {
+            composable(
+            Routes.Home,
+            exitTransition = {
+                if (targetState.destination.route == Routes.Cart) ExitTransition.None
+                else slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeOut(animationSpec = tween(tweenDuration))
+            },
+            popEnterTransition = {
+                if (initialState.destination.route == Routes.Cart) EnterTransition.None
+                else slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth / 3 },
+                    animationSpec = tween(tweenDuration)
+                ) + fadeIn(animationSpec = tween(tweenDuration))
+            }
+        ) {
+                val animScope = this
+                val vm: HomeViewModel = viewModel(factory = factory { HomeViewModel(repository) })
+                val state by vm.uiState.collectAsStateWithLifecycle()
+                val cartState by cartVm.uiState.collectAsStateWithLifecycle()
+                val addBoteVm: AddBoteViewModel = viewModel(factory = factory { AddBoteViewModel(repository) })
+                val addBoteState by addBoteVm.uiState.collectAsStateWithLifecycle()
+                val addFundsVm: AddFundsViewModel = viewModel(factory = factory { AddFundsViewModel(repository, nfcManager) })
+                val addFundsState by addFundsVm.uiState.collectAsStateWithLifecycle()
+                var showAddBoteSheet by remember { mutableStateOf(false) }
+                var showAddFundsSheet by remember { mutableStateOf(false) }
 
-                    if (showAddBoteSheet) {
-                        AddBoteDialogScreen(
-                            state = addBoteState,
-                            onDismiss = { showAddBoteSheet = false },
-                            onAmountChange = addBoteVm::onAmountChange,
-                            onQuickAdd = addBoteVm::addQuickAmount,
-                            onConfirm = {
-                                addBoteVm.confirm {
-                                    showAddBoteSheet = false
+                MenuRailScreen(
+                    drawerState = drawerState,
+                    onInventoryClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Routes.Inventory)
+                    },
+                    onDebtsClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Routes.Debts)
+                    },
+                    onAddBoteClick = {
+                        scope.launch { drawerState.close() }
+                        showAddBoteSheet = true
+                    },
+                    onAddFundsClick = {
+                        scope.launch { drawerState.close() }
+                        showAddFundsSheet = true
+                    },
+                    onHistoryClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Routes.History)
+                    },
+                    content = {
+                        HomeScreen(
+                            state = state,
+                            cartState = cartState,
+                            onOpenMenu = { scope.launch { drawerState.open() } },
+                            onProductClick = { product ->
+                                cartVm.addItem(product)
+                            },
+                            onCartClick = {
+                                navController.navigate(Routes.Cart)
+                            },
+                            onAdminAccess = {
+                                navController.navigate(Routes.Admin)
+                            },
+                            sharedTransitionScope = sharedTransScope,
+                            animatedVisibilityScope = animScope
+                        )
+
+                        if (showAddBoteSheet) {
+                            AddBoteDialogScreen(
+                                state = addBoteState,
+                                onDismiss = { showAddBoteSheet = false },
+                                onAmountChange = addBoteVm::onAmountChange,
+                                onQuickAdd = addBoteVm::addQuickAmount,
+                                onConfirm = {
+                                    addBoteVm.confirm {
+                                        showAddBoteSheet = false
+                                    }
                                 }
-                            }
-                        )
-                    }
+                            )
+                        }
 
-                    if (showAddFundsSheet) {
-                        AddFundsDialogScreen(
-                            state = addFundsState,
-                            onDismiss = { showAddFundsSheet = false },
-                            onAmountChange = addFundsVm::onAmountChange,
-                            onQuickAdd = addFundsVm::addQuickAmount,
-                            onStartNfcScan = addFundsVm::startNfcScan,
-                            onCancelNfcScan = addFundsVm::cancelNfcScan,
-                            onReset = addFundsVm::resetState
-                        )
+                        if (showAddFundsSheet) {
+                            AddFundsDialogScreen(
+                                state = addFundsState,
+                                onDismiss = { showAddFundsSheet = false },
+                                onAmountChange = addFundsVm::onAmountChange,
+                                onQuickAdd = addFundsVm::addQuickAmount,
+                                onStartNfcScan = addFundsVm::startNfcScan,
+                                onCancelNfcScan = addFundsVm::cancelNfcScan,
+                                onSettleExactDebt = addFundsVm::settleExactDebt,
+                                onShowQr = addFundsVm::showQr,
+                                onBackToAmount = addFundsVm::backToAmount,
+                                onSubmitContribution = addFundsVm::submitContribution,
+                                onReset = addFundsVm::resetState
+                            )
+                        }
                     }
+                )
+            }
+
+            composable(
+                Routes.Cart,
+                enterTransition = { fadeIn(tween(400)) },
+                exitTransition = { fadeOut(tween(300)) },
+                popEnterTransition = { fadeIn(tween(300)) },
+                popExitTransition = { fadeOut(tween(350)) }
+            ) {
+                val cartState by cartVm.uiState.collectAsStateWithLifecycle()
+                CartDetailsScreen(
+                    state = cartState,
+                    onBack = { navController.popBackStack() },
+                    onIncrement = cartVm::incrementItem,
+                    onDecrement = cartVm::decrementItem,
+                    onRemove = cartVm::removeItem,
+                    onPay = {
+                        navController.navigate(Routes.CartPayment)
+                    },
+                    sharedTransitionScope = sharedTransScope,
+                    animatedVisibilityScope = this
+                )
+            }
+
+        composable(Routes.CartPayment) {
+            val state by cartPaymentVm.uiState.collectAsStateWithLifecycle()
+            CartPaymentScreen(
+                state = state,
+                onBack = { navController.popBackStack() },
+                onPayNow = cartPaymentVm::payNow,
+                onPayWithBote = cartPaymentVm::payWithBote,
+                onStartCardPayment = cartPaymentVm::startCardPayment,
+                onCancelCardPayment = cartPaymentVm::cancelCardPayment,
+                onResultConsumed = cartPaymentVm::consumeResult,
+                onPurchaseSuccess = {
+                    cartVm.clearCart()
+                    navController.popBackStack(Routes.Home, inclusive = false)
                 }
             )
         }
@@ -280,6 +364,10 @@ private fun AppNavigation() {
                 onQuickAdd = vm::addQuickAmount,
                 onStartNfcScan = vm::startNfcScan,
                 onCancelNfcScan = vm::cancelNfcScan,
+                onSettleExactDebt = vm::settleExactDebt,
+                onShowQr = vm::showQr,
+                onBackToAmount = vm::backToAmount,
+                onSubmitContribution = vm::submitContribution,
                 onReset = vm::resetState
             )
         }
@@ -312,14 +400,22 @@ private fun AppNavigation() {
                 onDismissEditing = vm::dismissEditing,
                 onShowDeleteConfirm = vm::showDeleteConfirm,
                 onDismissDeleteConfirm = vm::dismissDeleteConfirm,
-                onConsumeLinkResult = vm::consumeLinkResult
+                onConsumeLinkResult = vm::consumeLinkResult,
+                onPayPalPoolUrlChange = vm::onPayPalPoolUrlChange,
+                onSavePayPalPoolUrl = vm::savePayPalPoolUrl,
+                onClearPayPalPoolUrl = vm::clearPayPalPoolUrl,
+                onApproveTopUp = vm::approveTopUp,
+                onRejectTopUp = vm::rejectTopUp
             )
         }
     }
+    } // SharedTransitionLayout
 }
 
 private object Routes {
     const val Home = "home"
+    const val Cart = "cart"
+    const val CartPayment = "cart_payment"
     const val Payment = "payment"
     const val Debts = "deudas"
     const val Inventory = "inventario"

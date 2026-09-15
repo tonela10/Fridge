@@ -6,16 +6,25 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [ProductEntity::class, PersonEntity::class, BoteEntity::class, TransactionEntity::class],
-    version = 4,
+    entities = [
+        ProductEntity::class,
+        PersonEntity::class,
+        BoteEntity::class,
+        TransactionEntity::class,
+        AppSettingsEntity::class,
+        TopUpRequestEntity::class
+    ],
+    version = 5,
     exportSchema = false
 )
-@androidx.room.TypeConverters(TransactionTypeConverter::class)
+@androidx.room.TypeConverters(TransactionTypeConverter::class, TopUpStatusConverter::class)
 abstract class FridgeDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun personDao(): PersonDao
     abstract fun boteDao(): BoteDao
     abstract fun transactionDao(): TransactionDao
+    abstract fun appSettingsDao(): AppSettingsDao
+    abstract fun topUpRequestDao(): TopUpRequestDao
 
     companion object {
         /** v1 → v2: adds hasAsset column (default 0 = false) */
@@ -73,6 +82,41 @@ abstract class FridgeDatabase : RoomDatabase() {
                         timestampMs INTEGER NOT NULL
                     )
                     """.trimIndent()
+                )
+            }
+        }
+
+        /** v4 → v5: adds PayPal Pool settings and manually approved top-up requests. */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS app_settings (
+                        id INTEGER NOT NULL PRIMARY KEY,
+                        paypalPoolUrl TEXT
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS top_up_requests (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        personId TEXT NOT NULL,
+                        personName TEXT NOT NULL,
+                        amountCents INTEGER NOT NULL,
+                        status TEXT NOT NULL,
+                        createdAtMs INTEGER NOT NULL,
+                        resolvedAtMs INTEGER
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_top_up_requests_status_createdAtMs " +
+                        "ON top_up_requests (status, createdAtMs)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_top_up_requests_personId " +
+                        "ON top_up_requests (personId)"
                 )
             }
         }

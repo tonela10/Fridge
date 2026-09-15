@@ -5,9 +5,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
-sealed interface AddFundsResult {
-    data class Success(val personName: String) : AddFundsResult
-    data object CardNotLinked : AddFundsResult
+sealed interface TopUpRequestResult {
+    data class Success(val request: TopUpRequestEntity) : TopUpRequestResult
+    data class AlreadyPending(val request: TopUpRequestEntity) : TopUpRequestResult
+    data object InvalidAmount : TopUpRequestResult
+    data object PersonNotFound : TopUpRequestResult
+    data object PoolNotConfigured : TopUpRequestResult
+}
+
+sealed interface TopUpResolutionResult {
+    data object Success : TopUpResolutionResult
+    data object NotFound : TopUpResolutionResult
+    data object AlreadyResolved : TopUpResolutionResult
+    data object PersonNotFound : TopUpResolutionResult
 }
 
 interface FridgeRepository {
@@ -16,14 +26,22 @@ interface FridgeRepository {
     fun observeBoteCents(): Flow<Int>
     fun observeTransactions(): Flow<List<TransactionEntity>>
     fun observeTransactionsByPerson(personId: String): Flow<List<TransactionEntity>>
+    fun observePayPalPoolUrl(): Flow<String?>
+    fun observePendingTopUpRequests(): Flow<List<TopUpRequestEntity>>
     suspend fun getProduct(productId: String): ProductEntity?
     suspend fun getPerson(personId: String): PersonEntity?
     suspend fun getPersonByNfcId(nfcId: String): PersonEntity?
     suspend fun ensureSeedData()
     suspend fun purchase(productId: String, personId: String, paymentMethod: PaymentMethod): PurchaseResult
     suspend fun purchaseWithCard(productId: String, nfcCardId: String): PurchaseResult
+    suspend fun purchaseCart(items: List<Pair<String, Int>>, personId: String, paymentMethod: PaymentMethod): PurchaseResult
+    suspend fun purchaseCartWithCard(items: List<Pair<String, Int>>, nfcCardId: String): PurchaseResult
     suspend fun addFunds(personId: String, amountCents: Int)
-    suspend fun addFundsByNfcCard(nfcCardId: String, amountCents: Int): AddFundsResult
+    suspend fun updatePayPalPoolUrl(url: String?)
+    suspend fun getPendingTopUpForPerson(personId: String): TopUpRequestEntity?
+    suspend fun createTopUpRequest(personId: String, amountCents: Int): TopUpRequestResult
+    suspend fun approveTopUpRequest(requestId: String): TopUpResolutionResult
+    suspend fun rejectTopUpRequest(requestId: String): TopUpResolutionResult
     suspend fun addBote(amountCents: Int)
     suspend fun updateStock(productId: String, newStock: Int)
     suspend fun addProduct(product: ProductEntity)
@@ -42,7 +60,9 @@ class FridgeRepositoryImpl(
     private val productDao: ProductDao,
     private val personDao: PersonDao,
     private val boteDao: BoteDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val appSettingsDao: AppSettingsDao,
+    private val topUpRequestDao: TopUpRequestDao
 ) : FridgeRepository {
 
     override fun observeProducts(): Flow<List<ProductEntity>> = productDao.observeProducts()
@@ -55,6 +75,12 @@ class FridgeRepositoryImpl(
 
     override fun observeTransactionsByPerson(personId: String): Flow<List<TransactionEntity>> =
         transactionDao.observeByPerson(personId)
+
+    override fun observePayPalPoolUrl(): Flow<String?> =
+        appSettingsDao.observeSettings().map { it?.paypalPoolUrl }
+
+    override fun observePendingTopUpRequests(): Flow<List<TopUpRequestEntity>> =
+        topUpRequestDao.observePending()
 
     private suspend fun logTx(
         type: TransactionType,
@@ -131,6 +157,57 @@ class FridgeRepositoryImpl(
         return purchase(productId, person.id, PaymentMethod.PAY_WITH_CARD)
     }
 
+    override suspend fun purchaseCart(
+        items: List<Pair<String, Int>>,
+        personId: String,
+        paymentMethod: PaymentMethod
+    ): PurchaseResult {
+        if (items.isEmpty()) return PurchaseResult.NotFound
+        val bote = boteDao.getBote() ?: BoteEntity(balanceCents = 0)
+
+        // Validate all products and stock before touching the DB
+        val products = items.map { (productId, qty) ->
+            val product = productDao.getProduct(productId) ?: return PurchaseResult.NotFound
+            if (product.stock < qty) return PurchaseResult.ProductWithoutStock
+            product to qty
+        }
+        val totalCents = products.sumOf { (product, qty) -> product.priceCents * qty }
+
+        if (paymentMethod == PaymentMethod.PAY_WITH_BOTE && bote.balanceCents < totalCents) {
+            return PurchaseResult.BoteInsufficient
+        }
+
+        db.withTransaction {
+            for ((product, qty) in products) {
+                productDao.updateProduct(product.copy(stock = product.stock - qty))
+            }
+            when (paymentMethod) {
+                PaymentMethod.PAY_NOW -> {
+                    val names = products.joinToString(", ") { (p, q) -> if (q > 1) "${p.name} x$q" else p.name }
+                    logTx(TransactionType.PURCHASE_NOW, totalCents, productName = names)
+                }
+                PaymentMethod.PAY_WITH_CARD -> {
+                    val person = personDao.getPerson(personId) ?: return@withTransaction
+                    personDao.updatePerson(person.copy(balanceCents = person.balanceCents - totalCents))
+                    val names = products.joinToString(", ") { (p, q) -> if (q > 1) "${p.name} x$q" else p.name }
+                    logTx(TransactionType.PURCHASE_CARD, totalCents, personId = person.id, personName = person.name, productName = names)
+                }
+                PaymentMethod.PAY_WITH_BOTE -> {
+                    boteDao.upsertBote(bote.copy(balanceCents = bote.balanceCents - totalCents))
+                    val names = products.joinToString(", ") { (p, q) -> if (q > 1) "${p.name} x$q" else p.name }
+                    logTx(TransactionType.PURCHASE_BOTE, totalCents, productName = names)
+                }
+            }
+        }
+
+        return PurchaseResult.Success
+    }
+
+    override suspend fun purchaseCartWithCard(items: List<Pair<String, Int>>, nfcCardId: String): PurchaseResult {
+        val person = personDao.getPersonByNfcId(nfcCardId) ?: return PurchaseResult.CardNotLinked
+        return purchaseCart(items, person.id, PaymentMethod.PAY_WITH_CARD)
+    }
+
     override suspend fun addFunds(personId: String, amountCents: Int) {
         if (amountCents <= 0) return
         val person = personDao.getPerson(personId) ?: return
@@ -138,13 +215,84 @@ class FridgeRepositoryImpl(
         logTx(TransactionType.ADD_FUNDS, amountCents, personId = person.id, personName = person.name)
     }
 
-    override suspend fun addFundsByNfcCard(nfcCardId: String, amountCents: Int): AddFundsResult {
-        if (amountCents <= 0) return AddFundsResult.CardNotLinked
-        val person = personDao.getPersonByNfcId(nfcCardId) ?: return AddFundsResult.CardNotLinked
-        personDao.updatePerson(person.copy(balanceCents = person.balanceCents + amountCents))
-        logTx(TransactionType.ADD_FUNDS, amountCents, personId = person.id, personName = person.name)
-        return AddFundsResult.Success(person.name)
+    override suspend fun updatePayPalPoolUrl(url: String?) {
+        appSettingsDao.upsert(
+            AppSettingsEntity(
+                paypalPoolUrl = url?.trim()?.takeIf { it.isNotEmpty() }
+            )
+        )
     }
+
+    override suspend fun getPendingTopUpForPerson(personId: String): TopUpRequestEntity? =
+        topUpRequestDao.getPendingForPerson(personId)
+
+    override suspend fun createTopUpRequest(
+        personId: String,
+        amountCents: Int
+    ): TopUpRequestResult = db.withTransaction {
+        if (amountCents <= 0) return@withTransaction TopUpRequestResult.InvalidAmount
+        val poolUrl = appSettingsDao.getSettings()?.paypalPoolUrl
+        if (poolUrl.isNullOrBlank()) return@withTransaction TopUpRequestResult.PoolNotConfigured
+        val person = personDao.getPerson(personId)
+            ?: return@withTransaction TopUpRequestResult.PersonNotFound
+        val pending = topUpRequestDao.getPendingForPerson(personId)
+        if (pending != null) return@withTransaction TopUpRequestResult.AlreadyPending(pending)
+
+        val request = TopUpRequestEntity(
+            id = UUID.randomUUID().toString(),
+            personId = person.id,
+            personName = person.name,
+            amountCents = amountCents,
+            status = TopUpStatus.PENDING,
+            createdAtMs = System.currentTimeMillis()
+        )
+        topUpRequestDao.insert(request)
+        TopUpRequestResult.Success(request)
+    }
+
+    override suspend fun approveTopUpRequest(requestId: String): TopUpResolutionResult =
+        db.withTransaction {
+            val request = topUpRequestDao.getById(requestId)
+                ?: return@withTransaction TopUpResolutionResult.NotFound
+            if (request.status != TopUpStatus.PENDING) {
+                return@withTransaction TopUpResolutionResult.AlreadyResolved
+            }
+            val person = personDao.getPerson(request.personId)
+                ?: return@withTransaction TopUpResolutionResult.PersonNotFound
+
+            personDao.updatePerson(
+                person.copy(balanceCents = person.balanceCents + request.amountCents)
+            )
+            logTx(
+                type = TransactionType.ADD_FUNDS,
+                amountCents = request.amountCents,
+                personId = person.id,
+                personName = person.name
+            )
+            topUpRequestDao.update(
+                request.copy(
+                    status = TopUpStatus.APPROVED,
+                    resolvedAtMs = System.currentTimeMillis()
+                )
+            )
+            TopUpResolutionResult.Success
+        }
+
+    override suspend fun rejectTopUpRequest(requestId: String): TopUpResolutionResult =
+        db.withTransaction {
+            val request = topUpRequestDao.getById(requestId)
+                ?: return@withTransaction TopUpResolutionResult.NotFound
+            if (request.status != TopUpStatus.PENDING) {
+                return@withTransaction TopUpResolutionResult.AlreadyResolved
+            }
+            topUpRequestDao.update(
+                request.copy(
+                    status = TopUpStatus.REJECTED,
+                    resolvedAtMs = System.currentTimeMillis()
+                )
+            )
+            TopUpResolutionResult.Success
+        }
 
     override suspend fun addBote(amountCents: Int) {
         if (amountCents <= 0) return

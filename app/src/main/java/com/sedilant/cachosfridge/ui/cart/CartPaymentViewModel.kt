@@ -1,4 +1,4 @@
-package com.sedilant.cachosfridge.ui.payment
+package com.sedilant.cachosfridge.ui.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class PaymentUiState(
-    val productName: String = "",
+data class CartPaymentUiState(
+    val itemCount: Int = 0,
     val totalCents: Int = 0,
     val boteCents: Int = 0,
     val canPayWithBote: Boolean = false,
@@ -25,40 +25,39 @@ data class PaymentUiState(
     val isNfcAvailable: Boolean = false
 )
 
-class PaymentViewModel(
+class CartPaymentViewModel(
     private val repository: FridgeRepository,
     private val nfcManager: NfcManager,
-    private val productId: String
+    private val cartViewModel: CartViewModel
 ) : ViewModel() {
+
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val isWaitingForCard = MutableStateFlow(false)
     private val cardPayerName = MutableStateFlow<String?>(null)
     private val cardPayerRemainingCents = MutableStateFlow<Int?>(null)
 
-    val uiState: StateFlow<PaymentUiState> = combine(
+    val uiState: StateFlow<CartPaymentUiState> = combine(
         repository.observeBoteCents(),
+        cartViewModel.uiState,
         purchaseResult,
         isWaitingForCard,
-        cardPayerName,
-        cardPayerRemainingCents
-    ) { boteCents, result, waiting, payerName, remainingCents ->
-        val product = repository.getProduct(productId)
-        val total = product?.priceCents ?: 0
-        PaymentUiState(
-            productName = product?.name.orEmpty(),
-            totalCents = total,
+        cardPayerName
+    ) { boteCents, cartState, result, waiting, payerName ->
+        CartPaymentUiState(
+            itemCount = cartState.itemCount,
+            totalCents = cartState.totalCents,
             boteCents = boteCents,
-            canPayWithBote = boteCents >= total,
+            canPayWithBote = boteCents >= cartState.totalCents,
             isWaitingForCard = waiting,
             cardPayerName = payerName,
-            cardPayerRemainingCents = remainingCents,
+            cardPayerRemainingCents = cardPayerRemainingCents.value,
             purchaseResult = result,
             isNfcAvailable = nfcManager.isNfcAvailable
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = PaymentUiState()
+        initialValue = CartPaymentUiState()
     )
 
     init {
@@ -66,7 +65,8 @@ class PaymentViewModel(
             nfcManager.tagUid.collect { uid ->
                 if (isWaitingForCard.value) {
                     isWaitingForCard.value = false
-                    val result = repository.purchaseWithCard(productId, uid)
+                    val items = cartViewModel.uiState.value.items.map { it.product.id to it.quantity }
+                    val result = repository.purchaseCartWithCard(items, uid)
                     if (result == PurchaseResult.Success) {
                         val person = repository.getPersonByNfcId(uid)
                         cardPayerName.value = person?.name
@@ -80,23 +80,15 @@ class PaymentViewModel(
 
     fun payNow() {
         viewModelScope.launch {
-            val product = repository.getProduct(productId) ?: return@launch
-            if (product.stock <= 0) {
-                purchaseResult.value = PurchaseResult.ProductWithoutStock
-                return@launch
-            }
-            purchaseResult.value = repository.purchase(productId, "", PaymentMethod.PAY_NOW)
+            val items = cartViewModel.uiState.value.items.map { it.product.id to it.quantity }
+            purchaseResult.value = repository.purchaseCart(items, "", PaymentMethod.PAY_NOW)
         }
     }
 
     fun payWithBote() {
         viewModelScope.launch {
-            val product = repository.getProduct(productId) ?: return@launch
-            if (product.stock <= 0) {
-                purchaseResult.value = PurchaseResult.ProductWithoutStock
-                return@launch
-            }
-            purchaseResult.value = repository.purchase(productId, "", PaymentMethod.PAY_WITH_BOTE)
+            val items = cartViewModel.uiState.value.items.map { it.product.id to it.quantity }
+            purchaseResult.value = repository.purchaseCart(items, "", PaymentMethod.PAY_WITH_BOTE)
         }
     }
 
@@ -113,7 +105,7 @@ class PaymentViewModel(
 
     fun consumeResult() {
         purchaseResult.value = null
-        cardPayerRemainingCents.value = null
         cardPayerName.value = null
+        cardPayerRemainingCents.value = null
     }
 }
